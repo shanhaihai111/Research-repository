@@ -113,11 +113,30 @@ def metrics_lookup(records):
     return records
 
 def brief(a):
+    if a.get('summary_cn'): return a['summary_cn']
     ab=' '.join((a.get('abstract') or '').split())
     if not ab: return '仅完成元数据核验；未取得摘要，不对研究结果作解释。'
     # conservative, traceable abstract compression
     sentences=re.split(r'(?<=[.!?])\s+',ab)
     return ' '.join(sentences[:2])[:420]
+
+def translation(a):
+    return a.get('title_cn','题名中文译文待人工核校。')
+
+def detailed_cn(a):
+    if a.get('detail_cn'): return a['detail_cn']
+    if not a.get('abstract'):
+        return '尚未获得摘要；本期不对研究结果作延伸解释。'
+    return '本解读仅依据 PubMed 摘要：'+brief(a)
+
+def weekly_takeaway(records):
+    """Concise Chinese synthesis. Specific editorial text is supplied with verified seed records;
+    live papers fall back to their validated Chinese summaries without inventing results."""
+    supplied=[a.get('weekly_takeaway_cn','') for a in records if a.get('weekly_takeaway_cn')]
+    if supplied: return supplied[0][:250]
+    if not records: return '本期未纳入符合条件的新论文。'
+    summaries='；'.join(brief(a) for a in records[:3])
+    return f'本期纳入 {len(records)} 项研究。{summaries}'[:250]
 
 def related_note(a):
     b=(a.get('title','')+' '+a.get('abstract','')).lower()
@@ -128,7 +147,7 @@ def related_note(a):
     return '与既有重点方向无直接机制连接；不强行外推。'
 
 def make_html(records, topics, start, end, report_day, audit):
-    css='''*{box-sizing:border-box} body{margin:0;background:#f7f8fa;color:#192633;font-family:"Noto Sans CJK SC","Microsoft YaHei",Arial,sans-serif;line-height:1.65} .wrap{max-width:1120px;margin:auto;padding:42px 24px 72px} header{border-bottom:1px solid #dce3ea;padding-bottom:25px} h1{font-family:Georgia,"Noto Serif CJK SC",serif;font-size:32px;line-height:1.25;margin:0 0 6px;color:#13283b}.sub{color:#607180;font-size:15px}.meta{margin-top:18px;color:#526577;font-size:14px}.nav{position:sticky;top:0;background:#f7f8faee;backdrop-filter:blur(8px);padding:12px 0;z-index:2;border-bottom:1px solid #dce3ea}.nav button{border:1px solid #c9d5df;background:#fff;border-radius:16px;padding:5px 11px;margin:3px;color:#31475b;cursor:pointer}.tools{display:flex;gap:10px;flex-wrap:wrap;margin:24px 0}.tools input,.tools select{padding:9px 10px;border:1px solid #cad5df;border-radius:6px;background:#fff}.section{margin-top:44px}.section h2{font-size:23px;margin-bottom:8px}.empty{color:#637586;font-style:italic}.card{background:#fff;border:1px solid #dbe3e9;border-left:5px solid var(--c);border-radius:8px;margin:16px 0;padding:18px 20px;box-shadow:0 1px 1px #0b20300a}.card h3{font-size:18px;line-height:1.4;margin:0 0 8px}.badge{font-size:12px;border-radius:12px;background:#edf2f5;padding:3px 8px;margin-right:5px}.detail{display:none;border-top:1px solid #e4eaef;margin-top:14px;padding-top:14px}.card.open .detail{display:block}.card button{border:0;background:transparent;color:#1a5e86;padding:0;font-weight:600;cursor:pointer}.small{font-size:13px;color:#607180}.summary{background:#fff;border:1px solid #dbe3e9;border-radius:8px;padding:16px 20px;margin:24px 0}.notice{background:#fff9e9;border-left:4px solid #b17922;padding:12px 15px}.link{color:#125d8b;text-decoration:none}@media(max-width:620px){.wrap{padding:26px 15px}.tools{display:block}.tools>*{width:100%;margin:4px 0}h1{font-size:26px}}'''
+    css='''*{box-sizing:border-box}body{margin:0;background:#f6f7f8;color:#1c2b36;font-family:"Noto Sans CJK SC","Microsoft YaHei",Arial,sans-serif;line-height:1.68}.wrap{max-width:1120px;margin:auto;padding:42px 24px 72px}header{border-bottom:1px solid #d9e0e5;padding-bottom:25px}h1{font-family:"Times New Roman","Noto Serif CJK SC",serif;font-size:32px;line-height:1.25;margin:0 0 6px;color:#13283b}.sub{font-family:"Times New Roman",serif;color:#607180;font-size:15px}.meta{margin-top:18px;color:#526577;font-size:14px}.nav{position:sticky;top:0;background:#f6f7f8ee;backdrop-filter:blur(8px);padding:12px 0;z-index:2;border-bottom:1px solid #dce3ea}.nav button{border:1px solid #c9d5df;background:#fff;border-radius:16px;padding:5px 11px;margin:3px;color:#31475b;cursor:pointer}.tools{display:flex;gap:10px;flex-wrap:wrap;margin:24px 0}.tools input,.tools select{padding:9px 10px;border:1px solid #cad5df;border-radius:6px;background:#fff}.section{margin-top:44px}.section h2{font-size:23px;margin-bottom:8px}.empty{color:#637586;font-style:italic}.card{background:var(--bg);border:1px solid #dbe3e9;border-left:5px solid var(--c);border-radius:8px;margin:16px 0;padding:18px 20px;box-shadow:0 1px 1px #0b20300a}.card h3{font-family:"Times New Roman",serif;font-size:18px;line-height:1.35;margin:0 0 4px}.translation{font-family:"Noto Serif CJK SC","Songti SC",serif;font-size:13px;color:#647482;margin:0 0 10px}.badge{font-size:12px;border-radius:12px;background:#eef2f4;padding:3px 8px;margin-right:5px}.detail{display:none;border-top:1px solid #dce5e9;margin-top:14px;padding-top:14px}.card.open .detail{display:block}.card button{border:0;background:transparent;color:#1a5e86;padding:0;font-weight:600;cursor:pointer}.small{font-size:13px;color:#607180}.summary{background:#eef3f5;border:1px solid #d5e0e5;border-radius:8px;padding:16px 20px;margin:24px 0}.link{color:#125d8b;text-decoration:none}@media(max-width:620px){.wrap{padding:26px 15px}.tools{display:block}.tools>*{width:100%;margin:4px 0}h1{font-size:26px}}'''
     nav=''.join(f'<button onclick="document.getElementById(\'{k}\').scrollIntoView()">{html.escape(v["title"].split(" ",1)[-1])}</button>' for k,v in topics.items())
     cards=[]
     by=defaultdict(list)
@@ -136,17 +155,17 @@ def make_html(records, topics, start, end, report_day, audit):
         for m in a['modules']: by[m].append(a)
     for key,t in topics.items():
         rows=[]
-        for a in by[key]:
+        for i,a in enumerate(by[key]):
             links=[]
             if a.get('doi'): links.append(f'<a class="link" href="https://doi.org/{html.escape(a["doi"])}" target="_blank">DOI</a>')
             if a.get('pmid'): links.append(f'<a class="link" href="https://pubmed.ncbi.nlm.nih.gov/{a["pmid"]}/" target="_blank">PubMed</a>')
-            tags=f'<span class="badge">{html.escape(a["type"])}</span><span class="badge">CAS 2025：{html.escape(a["cas_2025_major"])}</span><span class="badge">IF：{html.escape(a["impact_factor"])}</span>'
             importance=3 if ('随机' in a['type'] or 'Randomized' in a['type']) else 2
-            rows.append(f'''<article class="card" data-module="{key}" data-type="{html.escape(a['type']).lower()}" data-date="{html.escape(a['online_date'] or '0000-00-00')}" data-importance="{importance}" style="--c:{t['color']}"><h3>{html.escape(a['title'])}</h3><div class="small">{html.escape(a['journal'])} · 首次在线：{html.escape(a['online_date'] or '待核验')} · {' · '.join(links)}</div><p>{html.escape(brief(a))}</p><button onclick="this.closest('.card').classList.toggle('open')">展开详细解读</button><div class="detail"><p><b>研究设计与方法：</b>{html.escape(a['type'])}。以下解释{'仅根据摘要' if a.get('abstract') else '仅根据元数据'}。</p><p><b>主要发现与局限：</b>{html.escape(brief(a))}</p><p><b>对我的科研价值：</b>{html.escape(related_note(a))}</p><p><b>核验：</b>PMID {html.escape(a.get('pmid','无'))}；DOI {html.escape(a.get('doi','无'))}；来源：{html.escape(a.get('evidence',''))}；核验日 {report_day}。</p></div></article>''')
+            bg=('#f9fbfb','#f6f9fc','#faf8f5')[i%3]
+            rows.append(f'''<article class="card" data-module="{key}" data-type="{html.escape(a['type']).lower()}" data-date="{html.escape(a['online_date'] or '0000-00-00')}" data-importance="{importance}" style="--c:{t['color']};--bg:{bg}"><h3>{html.escape(a['title'])}</h3><p class="translation">{html.escape(translation(a))}</p><div class="small">{html.escape(a['journal'])} · 首次在线：{html.escape(a['online_date'] or '待核验')} · {' · '.join(links)}</div><p>{html.escape(brief(a))}</p><button onclick="this.closest('.card').classList.toggle('open')">展开详细解读</button><div class="detail"><p><b>研究设计、主要发现与局限：</b>{html.escape(detailed_cn(a))}</p><p><b>科研价值：</b>{html.escape(related_note(a))}</p><p class="small">研究类型：{html.escape(a['type'])} ｜ PMID {html.escape(a.get('pmid','无'))} ｜ DOI {html.escape(a.get('doi','无'))} ｜核验日 {report_day}</p></div></article>''')
         body=''.join(rows) or '<p class="empty">本周未检索到符合纳入条件的新论文。</p>'
         cards.append(f'<section class="section" id="{key}"><h2 style="color:{t["color"]}">{html.escape(t["title"])}</h2>{body}</section>')
     counts=' · '.join(f'{topics[k]["title"].split(" ",1)[-1]} {len(by[k])} 篇' for k in topics)
-    return f'''<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>精神医学与意识科学前沿周报 {report_day}</title><style>{css}</style></head><body><main class="wrap"><header><h1>精神医学与意识科学前沿研究周报</h1><div class="sub">Weekly Frontiers in Psychiatry, Taste Biology and Consciousness</div><div class="meta">覆盖期：{start} 至 {end} ｜生成日：{report_day} ｜正式纳入：{len(records)} 篇 ｜{counts}</div></header><nav class="nav">{nav}</nav><div class="summary"><b>本期要点。</b> 本报告仅保留首次在线发表日期处于覆盖期、并可由 PMID 或 DOI 核验的正式文献。期刊 CAS 2025 分区和 JCR 影响因子尚未导入授权指标数据，因此均标记为“未核验”。</div><div class="notice"><b>审计状态：</b>候选 {audit['candidates']} 篇；重复/历史排除 {audit['duplicates']} 篇；日期不在本期 {audit['out_of_window']} 篇；最终纳入 {len(records)} 篇。点击论文卡片可展开详情；可离线浏览已生成内容。</div><div class="tools"><input id="q" placeholder="搜索标题、期刊、关键词" oninput="filterCards()"><select id="mod" onchange="filterCards()"><option value="">全部模块</option>{''.join(f'<option value="{k}">{html.escape(v["title"])}</option>' for k,v in topics.items())}</select><select id="typ" onchange="filterCards()"><option value="">全部论文类型</option><option value="随机">随机试验</option><option value="队列">队列/观察性</option><option value="机制">机制研究</option></select><select id="sort" onchange="sortCards()"><option value="importance">按重要性</option><option value="date">按发表日期</option><option value="title">按标题</option></select></div>{''.join(cards)}<footer class="small">检索与核验记录见同目录 audit.json。报告不构成临床诊疗建议。</footer></main><script>function filterCards(){{let q=document.getElementById('q').value.toLowerCase(),m=document.getElementById('mod').value,t=document.getElementById('typ').value.toLowerCase();document.querySelectorAll('.card').forEach(c=>c.style.display=(!q||c.innerText.toLowerCase().includes(q))&&(!m||c.dataset.module===m)&&(!t||c.dataset.type.includes(t))?'block':'none')}}function sortCards(){{let k=document.getElementById('sort').value;document.querySelectorAll('.section').forEach(s=>{{let x=[...s.querySelectorAll('.card')];x.sort((a,b)=>{{if(k==='title')return a.innerText.localeCompare(b.innerText);if(k==='date')return b.dataset.date.localeCompare(a.dataset.date);return b.dataset.importance-a.dataset.importance}});x.forEach(c=>s.appendChild(c))}})}}sortCards();</script></body></html>'''
+    return f'''<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>精神医学与意识科学前沿周报 {report_day}</title><style>{css}</style></head><body><main class="wrap"><header><h1>精神医学与意识科学前沿研究周报</h1><div class="sub">Weekly Frontiers in Psychiatry, Taste Biology and Consciousness</div><div class="meta">覆盖期：{start} 至 {end} ｜生成日：{report_day} ｜正式纳入：{len(records)} 篇 ｜{counts}</div></header><nav class="nav">{nav}</nav><div class="summary"><b>本期要点。</b> {html.escape(weekly_takeaway(records))}</div><div class="tools"><input id="q" placeholder="搜索标题、期刊、关键词" oninput="filterCards()"><select id="mod" onchange="filterCards()"><option value="">全部栏目</option>{''.join(f'<option value="{k}">{html.escape(v["title"])}</option>' for k,v in topics.items())}</select><select id="typ" onchange="filterCards()"><option value="">全部论文类型</option><option value="随机">随机试验</option><option value="队列">队列/观察性</option><option value="机制">机制研究</option></select><select id="sort" onchange="sortCards()"><option value="importance">按重要性</option><option value="date">按发表日期</option><option value="title">按标题</option></select></div>{''.join(cards)}<footer class="small">检索与核验记录见同目录 audit.json。</footer></main><script>function filterCards(){{let q=document.getElementById('q').value.toLowerCase(),m=document.getElementById('mod').value,t=document.getElementById('typ').value.toLowerCase();document.querySelectorAll('.card').forEach(c=>c.style.display=(!q||c.innerText.toLowerCase().includes(q))&&(!m||c.dataset.module===m)&&(!t||c.dataset.type.includes(t))?'block':'none')}}function sortCards(){{let k=document.getElementById('sort').value;document.querySelectorAll('.section').forEach(s=>{{let x=[...s.querySelectorAll('.card')];x.sort((a,b)=>{{if(k==='title')return a.innerText.localeCompare(b.innerText);if(k==='date')return b.dataset.date.localeCompare(a.dataset.date);return b.dataset.importance-a.dataset.importance}});x.forEach(c=>s.appendChild(c))}})}}sortCards();</script></body></html>'''
 
 def font_path():
     target=ROOT/'assets'/'NotoSansCJKSC-Regular.ttf'
@@ -159,38 +178,48 @@ def font_path():
 
 def make_pdf(records, topics, start, end, report_day, outfile):
     from reportlab.lib import colors
-    from reportlab.lib.enums import TA_LEFT
     from reportlab.lib.pagesizes import A4
     from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
     from reportlab.lib.units import mm
     from reportlab.pdfbase import pdfmetrics
     from reportlab.pdfbase.cidfonts import UnicodeCIDFont
-    from reportlab.pdfbase.ttfonts import TTFont
-    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak
-    # ReportLab cannot reliably render the CFF outlines of some system Noto TTCs.
-    # STSong-Light is a standards-compliant CID Chinese font with Unicode mapping,
-    # preserving Chinese display and copy/search behaviour in common PDF readers.
-    family='STSong-Light'
-    try: pdfmetrics.registerFont(UnicodeCIDFont(family))
-    except Exception: family='Helvetica'
-    styles=getSampleStyleSheet();
-    title=ParagraphStyle('t',parent=styles['Title'],fontName=family,fontSize=23,leading=30,textColor=colors.HexColor('#13283b'),spaceAfter=10)
-    h=ParagraphStyle('h',parent=styles['Heading2'],fontName=family,fontSize=16,leading=22,spaceBefore=16,spaceAfter=8)
-    body=ParagraphStyle('b',parent=styles['BodyText'],fontName=family,fontSize=9.5,leading=15,spaceAfter=7)
-    small=ParagraphStyle('s',parent=body,fontSize=8,leading=12,textColor=colors.HexColor('#526577'))
-    story=[Paragraph('精神医学与意识科学前沿研究周报',title),Paragraph('Weekly Frontiers in Psychiatry, Taste Biology and Consciousness',small),Spacer(1,18),Paragraph(f'覆盖期：{start} 至 {end}<br/>生成日：{report_day}<br/>本期正式纳入：{len(records)} 篇',body),Spacer(1,14),Paragraph('本周要点',h),Paragraph('本报告只收录可用 PMID 或 DOI 核验、且首次在线发表日期处于本期的正式文献。未导入经授权的 2025 年中国科学院分区及最新 JCR 指标表时，所有相关项目均明确标为“未核验”。',body),PageBreak()]
+    from reportlab.platypus import BaseDocTemplate, Frame, PageTemplate, Paragraph, Spacer, PageBreak, NextPageTemplate, Table, TableStyle, KeepTogether
+    chinese='STSong-Light'
+    try: pdfmetrics.registerFont(UnicodeCIDFont(chinese))
+    except Exception: chinese='Helvetica'
+    styles=getSampleStyleSheet()
+    title=ParagraphStyle('title',parent=styles['Title'],fontName=chinese,fontSize=20,leading=27,textColor=colors.HexColor('#122d40'),spaceAfter=6)
+    english=ParagraphStyle('english',parent=styles['BodyText'],fontName='Times-Roman',fontSize=9,leading=12,textColor=colors.HexColor('#5c6b76'))
+    h=ParagraphStyle('h',parent=styles['Heading2'],fontName=chinese,fontSize=13,leading=18,spaceBefore=8,spaceAfter=6,textColor=colors.HexColor('#173e57'))
+    body=ParagraphStyle('b',parent=styles['BodyText'],fontName=chinese,fontSize=8.4,leading=13.1,spaceAfter=5)
+    small=ParagraphStyle('s',parent=body,fontSize=7.2,leading=10.5,textColor=colors.HexColor('#566b79'))
+    etitle=ParagraphStyle('et',parent=english,fontName='Times-Bold',fontSize=9.2,leading=12,textColor=colors.HexColor('#173e57'),spaceAfter=2)
+    trans=ParagraphStyle('trans',parent=body,fontName=chinese,fontSize=8.1,leading=11.6,textColor=colors.HexColor('#596d7a'),spaceAfter=5)
+    page_w,page_h=A4; left=16*mm; right=16*mm; top=15*mm; bottom=16*mm; gutter=7*mm
+    full=Frame(left,bottom,page_w-left-right,page_h-top-bottom,id='full')
+    colw=(page_w-left-right-gutter)/2
+    cols=[Frame(left,bottom,colw,page_h-top-bottom,id='left'),Frame(left+colw+gutter,bottom,colw,page_h-top-bottom,id='right')]
+    def footer(canvas,doc):
+        canvas.saveState(); canvas.setStrokeColor(colors.HexColor('#dbe3e7')); canvas.line(left,12*mm,page_w-right,12*mm)
+        canvas.setFont(chinese,7); canvas.setFillColor(colors.HexColor('#627483')); canvas.drawString(left,7.5*mm,'精神医学与意识科学前沿研究周报'); canvas.drawRightString(page_w-right,7.5*mm,str(doc.page)); canvas.restoreState()
+    doc=BaseDocTemplate(str(outfile),pagesize=A4,leftMargin=left,rightMargin=right,topMargin=top,bottomMargin=bottom,title='Weekly Frontiers Report')
+    doc.addPageTemplates([PageTemplate(id='cover',frames=[full],onPage=footer),PageTemplate(id='two',frames=cols,onPage=footer)])
+    story=[Paragraph('精神医学与意识科学前沿研究周报',title),Paragraph('Weekly Frontiers in Psychiatry, Taste Biology and Consciousness',english),Spacer(1,12),Paragraph(f'覆盖期：{start} 至 {end}　｜　生成日：{report_day}　｜　正式纳入：{len(records)} 篇',small),Spacer(1,12),Paragraph('本期要点',h),Paragraph(weekly_takeaway(records),body),Spacer(1,10)]
+    overview=[]
+    for key,t in topics.items(): overview.append(Paragraph(f'<font color="{t["color"]}">●</font> {t["title"]}　{sum(key in a["modules"] for a in records)} 篇',body))
+    story += [Table([[x] for x in overview],colWidths=[page_w-left-right],style=TableStyle([('BACKGROUND',(0,0),(-1,-1),colors.HexColor('#eef3f5')),('BOX',(0,0),(-1,-1),0.4,colors.HexColor('#d5e0e5')),('LEFTPADDING',(0,0),(-1,-1),10),('RIGHTPADDING',(0,0),(-1,-1),10),('TOPPADDING',(0,0),(-1,-1),5),('BOTTOMPADDING',(0,0),(-1,-1),5)])),NextPageTemplate('two'),PageBreak()]
     for key,t in topics.items():
         story += [Paragraph(t['title'],h)]
         rs=[a for a in records if key in a['modules']]
         if not rs: story.append(Paragraph('本周未检索到符合纳入条件的新论文。',body)); continue
-        for a in rs:
-            story += [Paragraph(a['title'],ParagraphStyle('pt',parent=body,fontSize=11,leading=15,textColor=colors.HexColor(t['color']))),Paragraph(f"{a['journal']} ｜首次在线：{a['online_date']} ｜{a['type']}",small),Paragraph('<b>摘要卡片：</b>'+html.escape(brief(a)),body),Paragraph('<b>详细解读：</b>'+html.escape(related_note(a))+' '+html.escape(a.get('evidence','')),body)]
-            if a.get('doi'): story.append(Paragraph(f'<link href="https://doi.org/{a["doi"]}">DOI: {a["doi"]}</link>',small))
-            if a.get('pmid'): story.append(Paragraph(f'<link href="https://pubmed.ncbi.nlm.nih.gov/{a["pmid"]}/">PubMed: {a["pmid"]}</link>',small))
-            story.append(Spacer(1,8))
-    def footer(canvas,doc):
-        canvas.saveState(); canvas.setFont(family,8); canvas.setFillColor(colors.HexColor('#607180')); canvas.drawString(18*mm,12*mm,'精神医学与意识科学前沿研究周报'); canvas.drawRightString(192*mm,12*mm,f'{doc.page}'); canvas.restoreState()
-    SimpleDocTemplate(str(outfile),pagesize=A4,rightMargin=18*mm,leftMargin=18*mm,topMargin=17*mm,bottomMargin=18*mm,title='Weekly Frontiers Report').build(story,onFirstPage=footer,onLaterPages=footer)
+        for i,a in enumerate(rs):
+            content=[Paragraph(a['title'],etitle),Paragraph(translation(a),trans),Paragraph(f'{a["journal"]} ｜首次在线：{a["online_date"]} ｜{a["type"]}',small),Paragraph('<b>研究提炼：</b>'+html.escape(brief(a)),body),Paragraph('<b>详细解读：</b>'+html.escape(detailed_cn(a)),body),Paragraph('<b>科研价值：</b>'+html.escape(related_note(a)),body)]
+            if a.get('doi'): content.append(Paragraph(f'<link href="https://doi.org/{a["doi"]}">DOI: {a["doi"]}</link>',small))
+            if a.get('pmid'): content.append(Paragraph(f'<link href="https://pubmed.ncbi.nlm.nih.gov/{a["pmid"]}/">PubMed: {a["pmid"]}</link>',small))
+            shade=[colors.HexColor('#f5f9fa'),colors.HexColor('#f7f8fc'),colors.HexColor('#faf8f5')][i%3]
+            card=Table([[content]],colWidths=[colw],style=TableStyle([('BACKGROUND',(0,0),(-1,-1),shade),('BOX',(0,0),(-1,-1),0.45,colors.HexColor('#d8e2e6')),('LINEBEFORE',(0,0),(0,-1),3,colors.HexColor(t['color'])),('LEFTPADDING',(0,0),(-1,-1),8),('RIGHTPADDING',(0,0),(-1,-1),8),('TOPPADDING',(0,0),(-1,-1),8),('BOTTOMPADDING',(0,0),(-1,-1),7)]))
+            story += [KeepTogether([card,Spacer(1,7)])]
+    doc.build(story)
 
 def load_env(path):
     if not path.exists(): return {}
@@ -214,6 +243,7 @@ def email_preview(report_dir, date_str, records, start, end, send, confirm):
 def main():
     ap=argparse.ArgumentParser(); ap.add_argument('--date',default=dt.date.today().isoformat()); ap.add_argument('--sample',action='store_true'); ap.add_argument('--no-email',action='store_true'); ap.add_argument('--send-email',action='store_true'); ap.add_argument('--confirm-send',action='store_true'); args=ap.parse_args()
     day=dt.date.fromisoformat(args.date); start,end=monday_window(day); cfg=load_yaml(CONFIG/'topics.yml'); topics=cfg['topics']; history=load_history(); failures=[]
+    LOGS.mkdir(parents=True,exist_ok=True)
     candidates=[]
     if args.sample:
         candidates=json.loads((DATA/'sample_verified_records.json').read_text(encoding='utf-8'))
@@ -226,7 +256,15 @@ def main():
             except Exception as e: failures.append({'module':key,'error':str(e)})
     for a in candidates:
         if not a.get('modules'): classify(a,topics)
-    fresh,duplicates=dedupe(candidates,history); in_window=[]; outside=[]
+    fresh,duplicates=dedupe(candidates,history)
+    # A manually re-run issue must reproduce the same report rather than replace it
+    # with an empty one. Prior reports from *other* weeks remain de-duplicated.
+    current_ids={article_id(x) for x in history if x.get('report_week')==day.isoformat()}
+    rerun=[a for a in candidates if article_id(a) in current_ids]
+    if rerun:
+        fresh.extend(rerun)
+        duplicates=[a for a in duplicates if article_id(a) not in current_ids]
+    in_window=[]; outside=[]
     for a in fresh:
         d=parse_date(a.get('online_date'))
         if d and start<=d<=end and a.get('modules'): in_window.append(a)
@@ -239,7 +277,7 @@ def main():
     make_pdf(in_window,topics,start,end,day.isoformat(),out/f'Weekly_Research_Report_{day:%Y%m%d}.pdf')
     with (out/'included_records.csv').open('w',newline='',encoding='utf-8-sig') as f:
         fields=['pmid','doi','title','journal','online_date','type','modules','cas_2025_major','cas_2025_minor','impact_factor','evidence']; w=csv.DictWriter(f,fieldnames=fields,extrasaction='ignore'); w.writeheader(); [w.writerow({**a,'modules':';'.join(a['modules'])}) for a in in_window]
-    if in_window:
+    if in_window and not rerun:
         with (DATA/'history.jsonl').open('a',encoding='utf-8') as f:
             for a in in_window: f.write(json.dumps({**a,'first_found':day.isoformat(),'report_week':day.isoformat()},ensure_ascii=False)+'\n')
     status='disabled'
