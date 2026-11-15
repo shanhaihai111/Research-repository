@@ -38,7 +38,7 @@ jobs:
         run: |
           git config user.name "weekly-report-bot"
           git config user.email "actions@github.com"
-          git add reports data/history.jsonl logs
+          git add -f reports data/history.jsonl logs
           git diff --cached --quiet || git commit -m "archive weekly report"
           git push
       # Secrets are injected only into this job's temporary environment. They are
