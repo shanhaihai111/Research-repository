@@ -54,7 +54,10 @@ def pubmed(route, query, start, end, limit, errors):
     ids=list(dict.fromkeys(week_ids+create_ids))
     if not ids:return [],{'publication_date_query':week,'entry_date_query':created,'returned_publication_date':week_count,'returned_entry_date':create_count,'retrieved':0}
     summ=get_json('https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?'+urllib.parse.urlencode({'db':'pubmed','id':','.join(ids),'retmode':'json'}),errors,'PubMed',route,2)
-    if not summ:return [],{'query':q,'returned':int(result.get('count','0')),'retrieved':0}
+    if not summ:
+        return [],{'publication_date_query':week,'entry_date_query':created,
+                   'returned_publication_date':week_count,'returned_entry_date':create_count,
+                   'retrieved':0,'metadata_fetch_failed':True}
     absmap={}
     try:
         ef='https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?'+urllib.parse.urlencode({'db':'pubmed','id':','.join(ids),'retmode':'xml'})
