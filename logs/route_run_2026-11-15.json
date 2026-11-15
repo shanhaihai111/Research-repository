@@ -1,0 +1,624 @@
+{
+  "run_date": "2026-11-15",
+  "coverage_start": "2026-11-08",
+  "coverage_end": "2026-11-14",
+  "routes": [
+    {
+      "route": "A1",
+      "title": "A1　抑郁症研究",
+      "queries": {
+        "PubMed": {
+          "publication_date_query": "(((\"Depressive Disorder\"[Mesh] OR \"Depressive Disorder, Major\"[Mesh] OR \"major depressive disorder\"[Title/Abstract] OR \"depressive disorder*\"[Title/Abstract] OR depression[Title/Abstract] OR \"depressive symptoms\"[Title/Abstract] OR \"treatment-resistant depression\"[Title/Abstract]))) AND (\"2026/11/08\"[Date - Publication] : \"2026/11/14\"[Date - Publication])",
+          "entry_date_query": "(((\"Depressive Disorder\"[Mesh] OR \"Depressive Disorder, Major\"[Mesh] OR \"major depressive disorder\"[Title/Abstract] OR \"depressive disorder*\"[Title/Abstract] OR depression[Title/Abstract] OR \"depressive symptoms\"[Title/Abstract] OR \"treatment-resistant depression\"[Title/Abstract]))) AND (\"2026/08/17\"[Date - Create] : \"2026/11/14\"[Date - Create])",
+          "returned_publication_date": 359,
+          "returned_entry_date": 0,
+          "retrieved": 250
+        },
+        "Crossref": {
+          "query": "major depressive disorder depression treatment-resistant depression",
+          "returned": 250,
+          "retrieved": 250
+        },
+        "OpenAlex": {
+          "returned": 0,
+          "error": true
+        }
+      },
+      "source_candidates": {
+        "PubMed": 250,
+        "Crossref": 250,
+        "OpenAlex": 0
+      },
+      "merged_unique": 497,
+      "date_resolved": 428,
+      "date_pending": 69,
+      "target_week": 257,
+      "topic_relevant": 104,
+      "formal_peer_review_candidates": 102,
+      "final_display_before_crossroute_dedupe": 8,
+      "exclusions": {
+        "outside_target_week_or_delayed": 171,
+        "date_unresolved": 69,
+        "topic_or_scope": 153,
+        "preprint_or_correction": 2
+      }
+    },
+    {
+      "route": "A2",
+      "title": "A2　游戏成瘾",
+      "queries": {
+        "PubMed": {
+          "publication_date_query": "(((\"gaming disorder\"[Title/Abstract] OR \"internet gaming disorder\"[Title/Abstract] OR \"problematic gaming\"[Title/Abstract] OR \"gaming addiction\"[Title/Abstract] OR \"video game addiction\"[Title/Abstract] OR \"problematic video game use\"[Title/Abstract] OR \"excessive gaming\"[Title/Abstract])) NOT (\"gambling disorder\"[Title/Abstract] OR \"game-based intervention\"[Title/Abstract])) AND (\"2026/11/08\"[Date - Publication] : \"2026/11/14\"[Date - Publication])",
+          "entry_date_query": "(((\"gaming disorder\"[Title/Abstract] OR \"internet gaming disorder\"[Title/Abstract] OR \"problematic gaming\"[Title/Abstract] OR \"gaming addiction\"[Title/Abstract] OR \"video game addiction\"[Title/Abstract] OR \"problematic video game use\"[Title/Abstract] OR \"excessive gaming\"[Title/Abstract])) NOT (\"gambling disorder\"[Title/Abstract] OR \"game-based intervention\"[Title/Abstract])) AND (\"2026/08/17\"[Date - Create] : \"2026/11/14\"[Date - Create])",
+          "returned_publication_date": 2,
+          "returned_entry_date": 106,
+          "retrieved": 106
+        },
+        "Crossref": {
+          "query": "gaming disorder internet gaming disorder gaming addiction",
+          "returned": 250,
+          "retrieved": 250
+        },
+        "OpenAlex": {
+          "returned": 0,
+          "error": true
+        }
+      },
+      "source_candidates": {
+        "PubMed": 106,
+        "Crossref": 250,
+        "OpenAlex": 0
+      },
+      "merged_unique": 302,
+      "date_resolved": 265,
+      "date_pending": 37,
+      "target_week": 8,
+      "topic_relevant": 5,
+      "formal_peer_review_candidates": 5,
+      "final_display_before_crossroute_dedupe": 5,
+      "exclusions": {
+        "outside_target_week_or_delayed": 257,
+        "date_unresolved": 37,
+        "topic_or_scope": 3,
+        "preprint_or_correction": 0
+      }
+    },
+    {
+      "route": "A3",
+      "title": "A3　抑郁症与游戏成瘾交叉研究",
+      "queries": {
+        "PubMed": {
+          "publication_date_query": "(((\"Depressive Disorder\"[Mesh] OR depression[Title/Abstract] OR \"depressive symptoms\"[Title/Abstract]) AND (\"gaming disorder\"[Title/Abstract] OR \"internet gaming disorder\"[Title/Abstract] OR \"problematic gaming\"[Title/Abstract] OR \"gaming addiction\"[Title/Abstract] OR \"video game addiction\"[Title/Abstract])) NOT \"gambling disorder\"[Title/Abstract]) AND (\"2026/11/08\"[Date - Publication] : \"2026/11/14\"[Date - Publication])",
+          "entry_date_query": "(((\"Depressive Disorder\"[Mesh] OR depression[Title/Abstract] OR \"depressive symptoms\"[Title/Abstract]) AND (\"gaming disorder\"[Title/Abstract] OR \"internet gaming disorder\"[Title/Abstract] OR \"problematic gaming\"[Title/Abstract] OR \"gaming addiction\"[Title/Abstract] OR \"video game addiction\"[Title/Abstract])) NOT \"gambling disorder\"[Title/Abstract]) AND (\"2026/08/17\"[Date - Create] : \"2026/11/14\"[Date - Create])",
+          "returned_publication_date": 1,
+          "returned_entry_date": 26,
+          "retrieved": 26
+        },
+        "Crossref": {
+          "query": "depression gaming disorder internet gaming disorder",
+          "returned": 250,
+          "retrieved": 250
+        },
+        "OpenAlex": {
+          "returned": 0,
+          "error": true
+        }
+      },
+      "source_candidates": {
+        "PubMed": 26,
+        "Crossref": 250,
+        "OpenAlex": 0
+      },
+      "merged_unique": 265,
+      "date_resolved": 210,
+      "date_pending": 55,
+      "target_week": 7,
+      "topic_relevant": 2,
+      "formal_peer_review_candidates": 2,
+      "final_display_before_crossroute_dedupe": 2,
+      "exclusions": {
+        "outside_target_week_or_delayed": 203,
+        "date_unresolved": 55,
+        "topic_or_scope": 5,
+        "preprint_or_correction": 0
+      }
+    },
+    {
+      "route": "B1",
+      "title": "B1　抑郁症与味觉受体",
+      "queries": {
+        "PubMed": {
+          "publication_date_query": "(((\"Depressive Disorder\"[Mesh] OR depression[Title/Abstract] OR \"depressive symptoms\"[Title/Abstract] OR \"depression-like\"[Title/Abstract] OR \"depressive-like\"[Title/Abstract]) AND (TAS2R[Title/Abstract] OR T2R[Title/Abstract] OR \"bitter taste receptor*\"[Title/Abstract] OR \"bitter receptor*\"[Title/Abstract] OR \"extraoral bitter taste receptor*\"[Title/Abstract] OR TAS1R1[Title/Abstract] OR TAS1R2[Title/Abstract] OR TAS1R3[Title/Abstract] OR T1R1[Title/Abstract] OR T1R2[Title/Abstract] OR T1R3[Title/Abstract] OR \"sweet taste receptor*\"[Title/Abstract] OR \"umami taste receptor*\"[Title/Abstract] OR \"sour taste receptor*\"[Title/Abstract] OR \"sour taste sensing\"[Title/Abstract] OR OTOP1[Title/Abstract] OR PKD2L1[Title/Abstract]))) AND (\"2026/11/08\"[Date - Publication] : \"2026/11/14\"[Date - Publication])",
+          "entry_date_query": "(((\"Depressive Disorder\"[Mesh] OR depression[Title/Abstract] OR \"depressive symptoms\"[Title/Abstract] OR \"depression-like\"[Title/Abstract] OR \"depressive-like\"[Title/Abstract]) AND (TAS2R[Title/Abstract] OR T2R[Title/Abstract] OR \"bitter taste receptor*\"[Title/Abstract] OR \"bitter receptor*\"[Title/Abstract] OR \"extraoral bitter taste receptor*\"[Title/Abstract] OR TAS1R1[Title/Abstract] OR TAS1R2[Title/Abstract] OR TAS1R3[Title/Abstract] OR T1R1[Title/Abstract] OR T1R2[Title/Abstract] OR T1R3[Title/Abstract] OR \"sweet taste receptor*\"[Title/Abstract] OR \"umami taste receptor*\"[Title/Abstract] OR \"sour taste receptor*\"[Title/Abstract] OR \"sour taste sensing\"[Title/Abstract] OR OTOP1[Title/Abstract] OR PKD2L1[Title/Abstract]))) AND (\"2026/08/17\"[Date - Create] : \"2026/11/14\"[Date - Create])",
+          "returned_publication_date": 0,
+          "returned_entry_date": 0,
+          "retrieved": 0
+        },
+        "Crossref": {
+          "query": "depression TAS2R bitter taste receptor taste receptor",
+          "returned": 250,
+          "retrieved": 250
+        },
+        "OpenAlex": {
+          "returned": 0,
+          "error": true
+        }
+      },
+      "source_candidates": {
+        "PubMed": 0,
+        "Crossref": 250,
+        "OpenAlex": 0
+      },
+      "merged_unique": 250,
+      "date_resolved": 165,
+      "date_pending": 85,
+      "target_week": 10,
+      "topic_relevant": 0,
+      "formal_peer_review_candidates": 0,
+      "final_display_before_crossroute_dedupe": 0,
+      "exclusions": {
+        "outside_target_week_or_delayed": 155,
+        "date_unresolved": 85,
+        "topic_or_scope": 10,
+        "preprint_or_correction": 0
+      }
+    },
+    {
+      "route": "B2",
+      "title": "B2　抑郁症与味觉感知",
+      "queries": {
+        "PubMed": {
+          "publication_date_query": "(((\"Depressive Disorder\"[Mesh] OR depression[Title/Abstract] OR \"depressive symptoms\"[Title/Abstract]) AND (\"taste perception\"[Title/Abstract] OR \"taste dysfunction\"[Title/Abstract] OR \"gustatory function\"[Title/Abstract] OR \"gustatory perception\"[Title/Abstract] OR dysgeusia[Title/Abstract] OR hypogeusia[Title/Abstract] OR ageusia[Title/Abstract] OR \"taste sensitivity\"[Title/Abstract] OR \"taste threshold\"[Title/Abstract] OR \"bitter taste perception\"[Title/Abstract] OR \"sweet taste perception\"[Title/Abstract] OR \"sour taste perception\"[Title/Abstract] OR \"taste preference\"[Title/Abstract] OR \"taste recognition\"[Title/Abstract] OR \"gustatory processing\"[Title/Abstract]))) AND (\"2026/11/08\"[Date - Publication] : \"2026/11/14\"[Date - Publication])",
+          "entry_date_query": "(((\"Depressive Disorder\"[Mesh] OR depression[Title/Abstract] OR \"depressive symptoms\"[Title/Abstract]) AND (\"taste perception\"[Title/Abstract] OR \"taste dysfunction\"[Title/Abstract] OR \"gustatory function\"[Title/Abstract] OR \"gustatory perception\"[Title/Abstract] OR dysgeusia[Title/Abstract] OR hypogeusia[Title/Abstract] OR ageusia[Title/Abstract] OR \"taste sensitivity\"[Title/Abstract] OR \"taste threshold\"[Title/Abstract] OR \"bitter taste perception\"[Title/Abstract] OR \"sweet taste perception\"[Title/Abstract] OR \"sour taste perception\"[Title/Abstract] OR \"taste preference\"[Title/Abstract] OR \"taste recognition\"[Title/Abstract] OR \"gustatory processing\"[Title/Abstract]))) AND (\"2026/08/17\"[Date - Create] : \"2026/11/14\"[Date - Create])",
+          "returned_publication_date": 0,
+          "returned_entry_date": 3,
+          "retrieved": 3
+        },
+        "Crossref": {
+          "query": "depression taste perception taste dysfunction gustatory",
+          "returned": 250,
+          "retrieved": 250
+        },
+        "OpenAlex": {
+          "returned": 0,
+          "error": true
+        }
+      },
+      "source_candidates": {
+        "PubMed": 3,
+        "Crossref": 250,
+        "OpenAlex": 0
+      },
+      "merged_unique": 253,
+      "date_resolved": 165,
+      "date_pending": 88,
+      "target_week": 11,
+      "topic_relevant": 0,
+      "formal_peer_review_candidates": 0,
+      "final_display_before_crossroute_dedupe": 0,
+      "exclusions": {
+        "outside_target_week_or_delayed": 154,
+        "date_unresolved": 88,
+        "topic_or_scope": 11,
+        "preprint_or_correction": 0
+      }
+    },
+    {
+      "route": "B3",
+      "title": "B3　疾病与味觉受体/感知前沿拓展",
+      "queries": {
+        "PubMed": {
+          "publication_date_query": "(((\"Disease\"[Mesh] OR disease*[Title/Abstract] OR disorder*[Title/Abstract] OR syndrome*[Title/Abstract]) AND (TAS2R[Title/Abstract] OR T2R[Title/Abstract] OR \"taste receptor*\"[Title/Abstract] OR \"bitter receptor*\"[Title/Abstract] OR TAS1R1[Title/Abstract] OR TAS1R2[Title/Abstract] OR TAS1R3[Title/Abstract] OR OTOP1[Title/Abstract] OR PKD2L1[Title/Abstract] OR \"taste perception\"[Title/Abstract] OR \"taste dysfunction\"[Title/Abstract] OR gustatory[Title/Abstract] OR dysgeusia[Title/Abstract] OR hypogeusia[Title/Abstract] OR ageusia[Title/Abstract] OR \"taste sensitivity\"[Title/Abstract] OR \"taste threshold\"[Title/Abstract] OR \"taste preference\"[Title/Abstract]))) AND (\"2026/11/08\"[Date - Publication] : \"2026/11/14\"[Date - Publication])",
+          "entry_date_query": "(((\"Disease\"[Mesh] OR disease*[Title/Abstract] OR disorder*[Title/Abstract] OR syndrome*[Title/Abstract]) AND (TAS2R[Title/Abstract] OR T2R[Title/Abstract] OR \"taste receptor*\"[Title/Abstract] OR \"bitter receptor*\"[Title/Abstract] OR TAS1R1[Title/Abstract] OR TAS1R2[Title/Abstract] OR TAS1R3[Title/Abstract] OR OTOP1[Title/Abstract] OR PKD2L1[Title/Abstract] OR \"taste perception\"[Title/Abstract] OR \"taste dysfunction\"[Title/Abstract] OR gustatory[Title/Abstract] OR dysgeusia[Title/Abstract] OR hypogeusia[Title/Abstract] OR ageusia[Title/Abstract] OR \"taste sensitivity\"[Title/Abstract] OR \"taste threshold\"[Title/Abstract] OR \"taste preference\"[Title/Abstract]))) AND (\"2026/08/17\"[Date - Create] : \"2026/11/14\"[Date - Create])",
+          "returned_publication_date": 2,
+          "returned_entry_date": 60,
+          "retrieved": 60
+        },
+        "Crossref": {
+          "query": "disease taste receptor bitter receptor taste perception gustatory",
+          "returned": 250,
+          "retrieved": 250
+        },
+        "OpenAlex": {
+          "returned": 0,
+          "error": true
+        }
+      },
+      "source_candidates": {
+        "PubMed": 60,
+        "Crossref": 250,
+        "OpenAlex": 0
+      },
+      "merged_unique": 304,
+      "date_resolved": 224,
+      "date_pending": 80,
+      "target_week": 13,
+      "topic_relevant": 6,
+      "formal_peer_review_candidates": 6,
+      "final_display_before_crossroute_dedupe": 6,
+      "exclusions": {
+        "outside_target_week_or_delayed": 211,
+        "date_unresolved": 80,
+        "topic_or_scope": 7,
+        "preprint_or_correction": 0
+      }
+    },
+    {
+      "route": "C1",
+      "title": "C1　精神疾病与脑屏障/脉络丛",
+      "queries": {
+        "PubMed": {
+          "publication_date_query": "(((\"Mental Disorders\"[Mesh] OR \"psychiatric disorder*\"[Title/Abstract] OR \"mental disorder*\"[Title/Abstract] OR neuropsychiatric[Title/Abstract] OR depression[Title/Abstract] OR bipolar[Title/Abstract] OR schizophrenia[Title/Abstract] OR psychosis[Title/Abstract] OR anxiety[Title/Abstract] OR PTSD[Title/Abstract] OR OCD[Title/Abstract] OR ADHD[Title/Abstract] OR autism[Title/Abstract] OR \"substance use\"[Title/Abstract] OR \"gaming disorder\"[Title/Abstract] OR \"eating disorder*\"[Title/Abstract]) AND (\"blood-brain barrier\"[Title/Abstract] OR \"blood brain barrier\"[Title/Abstract] OR BBB[Title/Abstract] OR \"BBB permeability\"[Title/Abstract] OR \"blood-CSF barrier\"[Title/Abstract] OR \"blood-cerebrospinal fluid barrier\"[Title/Abstract] OR BCSFB[Title/Abstract] OR \"choroid plexus\"[Title/Abstract] OR \"choroid plexus epithelial\"[Title/Abstract] OR \"brain barrier dysfunction\"[Title/Abstract] OR \"brain endothelial barrier\"[Title/Abstract]))) AND (\"2026/11/08\"[Date - Publication] : \"2026/11/14\"[Date - Publication])",
+          "entry_date_query": "(((\"Mental Disorders\"[Mesh] OR \"psychiatric disorder*\"[Title/Abstract] OR \"mental disorder*\"[Title/Abstract] OR neuropsychiatric[Title/Abstract] OR depression[Title/Abstract] OR bipolar[Title/Abstract] OR schizophrenia[Title/Abstract] OR psychosis[Title/Abstract] OR anxiety[Title/Abstract] OR PTSD[Title/Abstract] OR OCD[Title/Abstract] OR ADHD[Title/Abstract] OR autism[Title/Abstract] OR \"substance use\"[Title/Abstract] OR \"gaming disorder\"[Title/Abstract] OR \"eating disorder*\"[Title/Abstract]) AND (\"blood-brain barrier\"[Title/Abstract] OR \"blood brain barrier\"[Title/Abstract] OR BBB[Title/Abstract] OR \"BBB permeability\"[Title/Abstract] OR \"blood-CSF barrier\"[Title/Abstract] OR \"blood-cerebrospinal fluid barrier\"[Title/Abstract] OR BCSFB[Title/Abstract] OR \"choroid plexus\"[Title/Abstract] OR \"choroid plexus epithelial\"[Title/Abstract] OR \"brain barrier dysfunction\"[Title/Abstract] OR \"brain endothelial barrier\"[Title/Abstract]))) AND (\"2026/08/17\"[Date - Create] : \"2026/11/14\"[Date - Create])",
+          "returned_publication_date": 13,
+          "returned_entry_date": 336,
+          "retrieved": 250
+        },
+        "Crossref": {
+          "query": "psychiatric disorder blood brain barrier choroid plexus",
+          "returned": 250,
+          "retrieved": 250
+        },
+        "OpenAlex": {
+          "returned": 0,
+          "error": true
+        }
+      },
+      "source_candidates": {
+        "PubMed": 250,
+        "Crossref": 250,
+        "OpenAlex": 0
+      },
+      "merged_unique": 493,
+      "date_resolved": 417,
+      "date_pending": 76,
+      "target_week": 30,
+      "topic_relevant": 9,
+      "formal_peer_review_candidates": 9,
+      "final_display_before_crossroute_dedupe": 8,
+      "exclusions": {
+        "outside_target_week_or_delayed": 387,
+        "date_unresolved": 76,
+        "topic_or_scope": 21,
+        "preprint_or_correction": 0
+      }
+    },
+    {
+      "route": "C2",
+      "title": "C2　CEBPD机制研究",
+      "queries": {
+        "PubMed": {
+          "publication_date_query": "(((CEBPD[Title/Abstract] OR \"C/EBPδ\"[Title/Abstract] OR \"C/EBP delta\"[Title/Abstract] OR \"C/EBP-delta\"[Title/Abstract] OR \"CCAAT/enhancer-binding protein delta\"[Title/Abstract] OR \"CCAAT enhancer binding protein delta\"[Title/Abstract]))) AND (\"2026/11/08\"[Date - Publication] : \"2026/11/14\"[Date - Publication])",
+          "entry_date_query": "(((CEBPD[Title/Abstract] OR \"C/EBPδ\"[Title/Abstract] OR \"C/EBP delta\"[Title/Abstract] OR \"C/EBP-delta\"[Title/Abstract] OR \"CCAAT/enhancer-binding protein delta\"[Title/Abstract] OR \"CCAAT enhancer binding protein delta\"[Title/Abstract]))) AND (\"2026/08/17\"[Date - Create] : \"2026/11/14\"[Date - Create])",
+          "returned_publication_date": 0,
+          "returned_entry_date": 19,
+          "retrieved": 19
+        },
+        "Crossref": {
+          "query": "CEBPD C/EBP delta",
+          "returned": 250,
+          "retrieved": 250
+        },
+        "OpenAlex": {
+          "returned": 0,
+          "error": true
+        }
+      },
+      "source_candidates": {
+        "PubMed": 19,
+        "Crossref": 250,
+        "OpenAlex": 0
+      },
+      "merged_unique": 266,
+      "date_resolved": 235,
+      "date_pending": 31,
+      "target_week": 9,
+      "topic_relevant": 0,
+      "formal_peer_review_candidates": 0,
+      "final_display_before_crossroute_dedupe": 0,
+      "exclusions": {
+        "outside_target_week_or_delayed": 226,
+        "date_unresolved": 31,
+        "topic_or_scope": 9,
+        "preprint_or_correction": 0
+      }
+    },
+    {
+      "route": "C3",
+      "title": "C3　抑郁症与神经炎症",
+      "queries": {
+        "PubMed": {
+          "publication_date_query": "(((\"Depressive Disorder\"[Mesh] OR depression[Title/Abstract] OR \"major depressive disorder\"[Title/Abstract]) AND (neuroinflammation[Title/Abstract] OR neuroinflammatory[Title/Abstract] OR \"brain inflammation\"[Title/Abstract] OR \"microglial activation\"[Title/Abstract] OR (microglia[Title/Abstract] AND inflammation[Title/Abstract]) OR (astrocyte*[Title/Abstract] AND inflammation[Title/Abstract]) OR \"CNS immune activation\"[Title/Abstract] OR \"neuroimmune signaling\"[Title/Abstract]))) AND (\"2026/11/08\"[Date - Publication] : \"2026/11/14\"[Date - Publication])",
+          "entry_date_query": "(((\"Depressive Disorder\"[Mesh] OR depression[Title/Abstract] OR \"major depressive disorder\"[Title/Abstract]) AND (neuroinflammation[Title/Abstract] OR neuroinflammatory[Title/Abstract] OR \"brain inflammation\"[Title/Abstract] OR \"microglial activation\"[Title/Abstract] OR (microglia[Title/Abstract] AND inflammation[Title/Abstract]) OR (astrocyte*[Title/Abstract] AND inflammation[Title/Abstract]) OR \"CNS immune activation\"[Title/Abstract] OR \"neuroimmune signaling\"[Title/Abstract]))) AND (\"2026/08/17\"[Date - Create] : \"2026/11/14\"[Date - Create])",
+          "returned_publication_date": 10,
+          "returned_entry_date": 284,
+          "retrieved": 250
+        },
+        "Crossref": {
+          "query": "depression neuroinflammation microglia neuroimmune",
+          "returned": 250,
+          "retrieved": 250
+        },
+        "OpenAlex": {
+          "returned": 0,
+          "error": true
+        }
+      },
+      "source_candidates": {
+        "PubMed": 250,
+        "Crossref": 250,
+        "OpenAlex": 0
+      },
+      "merged_unique": 484,
+      "date_resolved": 426,
+      "date_pending": 58,
+      "target_week": 20,
+      "topic_relevant": 12,
+      "formal_peer_review_candidates": 12,
+      "final_display_before_crossroute_dedupe": 3,
+      "exclusions": {
+        "outside_target_week_or_delayed": 406,
+        "date_unresolved": 58,
+        "topic_or_scope": 8,
+        "preprint_or_correction": 0
+      }
+    },
+    {
+      "route": "C4",
+      "title": "C4　抑郁症与脑屏障/脉络丛",
+      "queries": {
+        "PubMed": {
+          "publication_date_query": "(((\"Depressive Disorder\"[Mesh] OR depression[Title/Abstract] OR \"major depressive disorder\"[Title/Abstract] OR \"treatment-resistant depression\"[Title/Abstract]) AND (\"blood-brain barrier\"[Title/Abstract] OR \"blood brain barrier\"[Title/Abstract] OR BBB[Title/Abstract] OR \"blood-CSF barrier\"[Title/Abstract] OR \"blood-cerebrospinal fluid barrier\"[Title/Abstract] OR BCSFB[Title/Abstract] OR \"choroid plexus\"[Title/Abstract] OR \"tight junction\"[Title/Abstract] OR claudin[Title/Abstract] OR occludin[Title/Abstract] OR \"brain endothelial\"[Title/Abstract]))) AND (\"2026/11/08\"[Date - Publication] : \"2026/11/14\"[Date - Publication])",
+          "entry_date_query": "(((\"Depressive Disorder\"[Mesh] OR depression[Title/Abstract] OR \"major depressive disorder\"[Title/Abstract] OR \"treatment-resistant depression\"[Title/Abstract]) AND (\"blood-brain barrier\"[Title/Abstract] OR \"blood brain barrier\"[Title/Abstract] OR BBB[Title/Abstract] OR \"blood-CSF barrier\"[Title/Abstract] OR \"blood-cerebrospinal fluid barrier\"[Title/Abstract] OR BCSFB[Title/Abstract] OR \"choroid plexus\"[Title/Abstract] OR \"tight junction\"[Title/Abstract] OR claudin[Title/Abstract] OR occludin[Title/Abstract] OR \"brain endothelial\"[Title/Abstract]))) AND (\"2026/08/17\"[Date - Create] : \"2026/11/14\"[Date - Create])",
+          "returned_publication_date": 4,
+          "returned_entry_date": 97,
+          "retrieved": 97
+        },
+        "Crossref": {
+          "query": "depression blood brain barrier choroid plexus",
+          "returned": 250,
+          "retrieved": 250
+        },
+        "OpenAlex": {
+          "returned": 0,
+          "error": true
+        }
+      },
+      "source_candidates": {
+        "PubMed": 97,
+        "Crossref": 250,
+        "OpenAlex": 0
+      },
+      "merged_unique": 343,
+      "date_resolved": 281,
+      "date_pending": 62,
+      "target_week": 23,
+      "topic_relevant": 5,
+      "formal_peer_review_candidates": 5,
+      "final_display_before_crossroute_dedupe": 5,
+      "exclusions": {
+        "outside_target_week_or_delayed": 258,
+        "date_unresolved": 62,
+        "topic_or_scope": 18,
+        "preprint_or_correction": 0
+      }
+    },
+    {
+      "route": "D1",
+      "title": "D1　意识的神经基础",
+      "queries": {
+        "PubMed": {
+          "publication_date_query": "(((consciousness[Title/Abstract] OR \"neural correlates of consciousness\"[Title/Abstract] OR \"neural basis of consciousness\"[Title/Abstract] OR \"conscious experience\"[Title/Abstract] OR \"subjective experience\"[Title/Abstract] OR \"phenomenal consciousness\"[Title/Abstract] OR \"conscious awareness\"[Title/Abstract] OR \"conscious access\"[Title/Abstract] OR \"conscious perception\"[Title/Abstract]))) AND (\"2026/11/08\"[Date - Publication] : \"2026/11/14\"[Date - Publication])",
+          "entry_date_query": "(((consciousness[Title/Abstract] OR \"neural correlates of consciousness\"[Title/Abstract] OR \"neural basis of consciousness\"[Title/Abstract] OR \"conscious experience\"[Title/Abstract] OR \"subjective experience\"[Title/Abstract] OR \"phenomenal consciousness\"[Title/Abstract] OR \"conscious awareness\"[Title/Abstract] OR \"conscious access\"[Title/Abstract] OR \"conscious perception\"[Title/Abstract]))) AND (\"2026/08/17\"[Date - Create] : \"2026/11/14\"[Date - Create])",
+          "returned_publication_date": 41,
+          "returned_entry_date": 1067,
+          "retrieved": 251
+        },
+        "Crossref": {
+          "query": "consciousness neural correlates conscious experience subjective experience",
+          "returned": 250,
+          "retrieved": 250
+        },
+        "OpenAlex": {
+          "returned": 0,
+          "error": true
+        }
+      },
+      "source_candidates": {
+        "PubMed": 251,
+        "Crossref": 250,
+        "OpenAlex": 0
+      },
+      "merged_unique": 495,
+      "date_resolved": 447,
+      "date_pending": 48,
+      "target_week": 46,
+      "topic_relevant": 37,
+      "formal_peer_review_candidates": 37,
+      "final_display_before_crossroute_dedupe": 8,
+      "exclusions": {
+        "outside_target_week_or_delayed": 401,
+        "date_unresolved": 48,
+        "topic_or_scope": 9,
+        "preprint_or_correction": 0
+      }
+    },
+    {
+      "route": "D2",
+      "title": "D2　意识理论与实证验证",
+      "queries": {
+        "PubMed": {
+          "publication_date_query": "(((\"global neuronal workspace\"[Title/Abstract] OR \"global workspace theory\"[Title/Abstract] OR \"integrated information theory\"[Title/Abstract] OR \"higher-order theory\"[Title/Abstract] OR \"higher-order thought\"[Title/Abstract] OR \"recurrent processing theory\"[Title/Abstract] OR \"predictive processing\"[Title/Abstract] AND consciousness[Title/Abstract] OR \"consciousness theory comparison\"[Title/Abstract]))) AND (\"2026/11/08\"[Date - Publication] : \"2026/11/14\"[Date - Publication])",
+          "entry_date_query": "(((\"global neuronal workspace\"[Title/Abstract] OR \"global workspace theory\"[Title/Abstract] OR \"integrated information theory\"[Title/Abstract] OR \"higher-order theory\"[Title/Abstract] OR \"higher-order thought\"[Title/Abstract] OR \"recurrent processing theory\"[Title/Abstract] OR \"predictive processing\"[Title/Abstract] AND consciousness[Title/Abstract] OR \"consciousness theory comparison\"[Title/Abstract]))) AND (\"2026/08/17\"[Date - Create] : \"2026/11/14\"[Date - Create])",
+          "returned_publication_date": 3,
+          "returned_entry_date": 28,
+          "retrieved": 28
+        },
+        "Crossref": {
+          "query": "global neuronal workspace integrated information theory consciousness",
+          "returned": 250,
+          "retrieved": 250
+        },
+        "OpenAlex": {
+          "returned": 0,
+          "error": true
+        }
+      },
+      "source_candidates": {
+        "PubMed": 28,
+        "Crossref": 250,
+        "OpenAlex": 0
+      },
+      "merged_unique": 278,
+      "date_resolved": 205,
+      "date_pending": 73,
+      "target_week": 17,
+      "topic_relevant": 3,
+      "formal_peer_review_candidates": 3,
+      "final_display_before_crossroute_dedupe": 3,
+      "exclusions": {
+        "outside_target_week_or_delayed": 188,
+        "date_unresolved": 73,
+        "topic_or_scope": 14,
+        "preprint_or_correction": 0
+      }
+    },
+    {
+      "route": "D3",
+      "title": "D3　意识状态与脑机制",
+      "queries": {
+        "PubMed": {
+          "publication_date_query": "(((\"conscious brain states\"[Title/Abstract] OR \"wakefulness and consciousness\"[Title/Abstract] OR \"neural complexity and consciousness\"[Title/Abstract] OR \"perturbational complexity index\"[Title/Abstract] OR \"conscious versus unconscious processing\"[Title/Abstract] OR (sleep[Title/Abstract] AND consciousness[Title/Abstract]) OR (anesthesia[Title/Abstract] AND consciousness[Title/Abstract]) OR (anaesthesia[Title/Abstract] AND consciousness[Title/Abstract])))) AND (\"2026/11/08\"[Date - Publication] : \"2026/11/14\"[Date - Publication])",
+          "entry_date_query": "(((\"conscious brain states\"[Title/Abstract] OR \"wakefulness and consciousness\"[Title/Abstract] OR \"neural complexity and consciousness\"[Title/Abstract] OR \"perturbational complexity index\"[Title/Abstract] OR \"conscious versus unconscious processing\"[Title/Abstract] OR (sleep[Title/Abstract] AND consciousness[Title/Abstract]) OR (anesthesia[Title/Abstract] AND consciousness[Title/Abstract]) OR (anaesthesia[Title/Abstract] AND consciousness[Title/Abstract])))) AND (\"2026/08/17\"[Date - Create] : \"2026/11/14\"[Date - Create])",
+          "returned_publication_date": 3,
+          "returned_entry_date": 88,
+          "retrieved": 88
+        },
+        "Crossref": {
+          "query": "consciousness neural complexity perturbational complexity sleep anesthesia",
+          "returned": 250,
+          "retrieved": 250
+        },
+        "OpenAlex": {
+          "returned": 0,
+          "error": true
+        }
+      },
+      "source_candidates": {
+        "PubMed": 88,
+        "Crossref": 250,
+        "OpenAlex": 0
+      },
+      "merged_unique": 336,
+      "date_resolved": 217,
+      "date_pending": 119,
+      "target_week": 18,
+      "topic_relevant": 2,
+      "formal_peer_review_candidates": 2,
+      "final_display_before_crossroute_dedupe": 2,
+      "exclusions": {
+        "outside_target_week_or_delayed": 199,
+        "date_unresolved": 119,
+        "topic_or_scope": 16,
+        "preprint_or_correction": 0
+      }
+    }
+  ],
+  "cross_route_unique": 41,
+  "history_duplicates": 0,
+  "final_unique": 41,
+  "api_errors": [
+    {
+      "route": "A3",
+      "source": "PubMed EFetch",
+      "error": "HTTP Error 429: Too Many Requests"
+    },
+    {
+      "route": "A1",
+      "source": "PubMed",
+      "error": "HTTPError: HTTP Error 429: Too Many Requests"
+    },
+    {
+      "route": "B1",
+      "source": "OpenAlex",
+      "error": "HTTPError: HTTP Error 400: Bad Request"
+    },
+    {
+      "route": "A3",
+      "source": "OpenAlex",
+      "error": "HTTPError: HTTP Error 400: Bad Request"
+    },
+    {
+      "route": "A1",
+      "source": "PubMed EFetch",
+      "error": "HTTP Error 429: Too Many Requests"
+    },
+    {
+      "route": "B2",
+      "source": "PubMed EFetch",
+      "error": "HTTP Error 429: Too Many Requests"
+    },
+    {
+      "route": "A2",
+      "source": "OpenAlex",
+      "error": "HTTPError: HTTP Error 400: Bad Request"
+    },
+    {
+      "route": "B2",
+      "source": "OpenAlex",
+      "error": "HTTPError: HTTP Error 400: Bad Request"
+    },
+    {
+      "route": "A1",
+      "source": "OpenAlex",
+      "error": "HTTPError: HTTP Error 400: Bad Request"
+    },
+    {
+      "route": "C2",
+      "source": "PubMed EFetch",
+      "error": "HTTP Error 429: Too Many Requests"
+    },
+    {
+      "route": "B3",
+      "source": "OpenAlex",
+      "error": "HTTPError: HTTP Error 400: Bad Request"
+    },
+    {
+      "route": "C2",
+      "source": "OpenAlex",
+      "error": "HTTPError: HTTP Error 400: Bad Request"
+    },
+    {
+      "route": "C1",
+      "source": "OpenAlex",
+      "error": "HTTPError: HTTP Error 400: Bad Request"
+    },
+    {
+      "route": "C3",
+      "source": "OpenAlex",
+      "error": "HTTPError: HTTP Error 400: Bad Request"
+    },
+    {
+      "route": "C4",
+      "source": "OpenAlex",
+      "error": "HTTPError: HTTP Error 400: Bad Request"
+    },
+    {
+      "route": "D2",
+      "source": "OpenAlex",
+      "error": "HTTPError: HTTP Error 400: Bad Request"
+    },
+    {
+      "route": "D1",
+      "source": "OpenAlex",
+      "error": "HTTPError: HTTP Error 400: Bad Request"
+    },
+    {
+      "route": "D3",
+      "source": "OpenAlex",
+      "error": "HTTPError: HTTP Error 400: Bad Request"
+    }
+  ],
+  "test_scope": "不发送邮件；该次为本地诊断/预览运行。",
+  "email_status": "sent"
+}
