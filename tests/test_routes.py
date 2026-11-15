@@ -37,5 +37,20 @@ def test_route_configuration_and_formal_filter():
     assert not r.formal_publication({'title':'Correction: a CEBPD study','type':'Published Erratum'})
     assert r.formal_publication({'title':'CEBPD regulates inflammation','type':'Journal Article'})
 
+def test_pubmed_empty_metadata_path(monkeypatch=None):
+    # Regression: an empty PubMed summary must become an audited source failure,
+    # never crash the complete multi-route weekly run.
+    original=r.get_json
+    calls=[]
+    def fake(url, errors, source, route, tries=2):
+        calls.append(url)
+        if 'esearch.fcgi' in url:return {'esearchresult':{'count':'1','idlist':['1']}}
+        return None
+    r.get_json=fake
+    try:
+        rows,audit=r.pubmed('T','x',dt.date(2026,11,9),dt.date(2026,11,15),1,[])
+        assert rows==[] and audit['metadata_fetch_failed'] is True
+    finally:r.get_json=original
+
 if __name__=='__main__':
-    test_date_boundaries(); test_cross_route_dedupe_retains_labels(); test_scope_rules(); test_route_configuration_and_formal_filter(); print('route tests passed')
+    test_date_boundaries(); test_cross_route_dedupe_retains_labels(); test_scope_rules(); test_route_configuration_and_formal_filter(); test_pubmed_empty_metadata_path(); print('route tests passed')
