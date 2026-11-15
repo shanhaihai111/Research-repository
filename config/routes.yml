@@ -1,0 +1,144 @@
+project:
+  timezone: Asia/Shanghai
+  candidate_lookback_days: 90
+  delayed_discovery_days: 90
+  max_per_route: 250
+routes:
+  A1:
+    section: A
+    title: A1　抑郁症研究
+    source_queries:
+      pubmed: '(("Depressive Disorder"[Mesh] OR "Depressive Disorder, Major"[Mesh] OR "major depressive disorder"[Title/Abstract] OR "depressive disorder*"[Title/Abstract] OR depression[Title/Abstract] OR "depressive symptoms"[Title/Abstract] OR "treatment-resistant depression"[Title/Abstract]))'
+      crossref: 'major depressive disorder depression treatment-resistant depression'
+      openalex: 'major depressive disorder depression'
+    include_any: ['depress']
+    exclude_any: []
+    display_limit: 8
+  A2:
+    section: A
+    title: A2　游戏成瘾
+    source_queries:
+      pubmed: '(("gaming disorder"[Title/Abstract] OR "internet gaming disorder"[Title/Abstract] OR "problematic gaming"[Title/Abstract] OR "gaming addiction"[Title/Abstract] OR "video game addiction"[Title/Abstract] OR "problematic video game use"[Title/Abstract] OR "excessive gaming"[Title/Abstract])) NOT ("gambling disorder"[Title/Abstract] OR "game-based intervention"[Title/Abstract])'
+      crossref: 'gaming disorder internet gaming disorder gaming addiction'
+      openalex: 'gaming disorder internet gaming disorder'
+    include_any: ['gaming disorder','internet gaming disorder','problematic gaming','gaming addiction','video game addiction','problematic video game use','excessive gaming']
+    exclude_any: ['gambling disorder','game-based intervention']
+    display_limit: 8
+  A3:
+    section: A
+    title: A3　抑郁症与游戏成瘾交叉研究
+    source_queries:
+      pubmed: '(("Depressive Disorder"[Mesh] OR depression[Title/Abstract] OR "depressive symptoms"[Title/Abstract]) AND ("gaming disorder"[Title/Abstract] OR "internet gaming disorder"[Title/Abstract] OR "problematic gaming"[Title/Abstract] OR "gaming addiction"[Title/Abstract] OR "video game addiction"[Title/Abstract])) NOT "gambling disorder"[Title/Abstract]'
+      crossref: 'depression gaming disorder internet gaming disorder'
+      openalex: 'depression gaming disorder'
+    include_any: ['depress']
+    require_any: ['gaming disorder','internet gaming disorder','problematic gaming','gaming addiction','video game addiction']
+    exclude_any: ['gambling disorder']
+    display_limit: 6
+  B1:
+    section: B
+    title: B1　抑郁症与味觉受体
+    source_queries:
+      pubmed: '(("Depressive Disorder"[Mesh] OR depression[Title/Abstract] OR "depressive symptoms"[Title/Abstract] OR "depression-like"[Title/Abstract] OR "depressive-like"[Title/Abstract]) AND (TAS2R[Title/Abstract] OR T2R[Title/Abstract] OR "bitter taste receptor*"[Title/Abstract] OR "bitter receptor*"[Title/Abstract] OR "extraoral bitter taste receptor*"[Title/Abstract] OR TAS1R1[Title/Abstract] OR TAS1R2[Title/Abstract] OR TAS1R3[Title/Abstract] OR T1R1[Title/Abstract] OR T1R2[Title/Abstract] OR T1R3[Title/Abstract] OR "sweet taste receptor*"[Title/Abstract] OR "umami taste receptor*"[Title/Abstract] OR "sour taste receptor*"[Title/Abstract] OR "sour taste sensing"[Title/Abstract] OR OTOP1[Title/Abstract] OR PKD2L1[Title/Abstract]))'
+      crossref: 'depression TAS2R bitter taste receptor taste receptor'
+      openalex: 'depression TAS2R bitter taste receptor'
+    include_any: ['depress','depression-like','depressive-like']
+    require_any: ['tas2r','t2r','bitter taste receptor','bitter receptor','tas1r','t1r','sweet taste receptor','umami taste receptor','sour taste receptor','sour taste sensing','otop1','pkd2l1']
+    exclude_any: []
+    display_limit: 8
+  B2:
+    section: B
+    title: B2　抑郁症与味觉感知
+    source_queries:
+      pubmed: '(("Depressive Disorder"[Mesh] OR depression[Title/Abstract] OR "depressive symptoms"[Title/Abstract]) AND ("taste perception"[Title/Abstract] OR "taste dysfunction"[Title/Abstract] OR "gustatory function"[Title/Abstract] OR "gustatory perception"[Title/Abstract] OR dysgeusia[Title/Abstract] OR hypogeusia[Title/Abstract] OR ageusia[Title/Abstract] OR "taste sensitivity"[Title/Abstract] OR "taste threshold"[Title/Abstract] OR "bitter taste perception"[Title/Abstract] OR "sweet taste perception"[Title/Abstract] OR "sour taste perception"[Title/Abstract] OR "taste preference"[Title/Abstract] OR "taste recognition"[Title/Abstract] OR "gustatory processing"[Title/Abstract]))'
+      crossref: 'depression taste perception taste dysfunction gustatory'
+      openalex: 'depression taste perception gustatory'
+    include_any: ['depress']
+    require_any: ['taste perception','taste dysfunction','gustatory','dysgeusia','hypogeusia','ageusia','taste sensitivity','taste threshold','taste preference','taste recognition']
+    exclude_any: []
+    display_limit: 8
+  B3:
+    section: B
+    title: B3　疾病与味觉受体/感知前沿拓展
+    source_queries:
+      pubmed: '(("Disease"[Mesh] OR disease*[Title/Abstract] OR disorder*[Title/Abstract] OR syndrome*[Title/Abstract]) AND (TAS2R[Title/Abstract] OR T2R[Title/Abstract] OR "taste receptor*"[Title/Abstract] OR "bitter receptor*"[Title/Abstract] OR TAS1R1[Title/Abstract] OR TAS1R2[Title/Abstract] OR TAS1R3[Title/Abstract] OR OTOP1[Title/Abstract] OR PKD2L1[Title/Abstract] OR "taste perception"[Title/Abstract] OR "taste dysfunction"[Title/Abstract] OR gustatory[Title/Abstract] OR dysgeusia[Title/Abstract] OR hypogeusia[Title/Abstract] OR ageusia[Title/Abstract] OR "taste sensitivity"[Title/Abstract] OR "taste threshold"[Title/Abstract] OR "taste preference"[Title/Abstract]))'
+      crossref: 'disease taste receptor bitter receptor taste perception gustatory'
+      openalex: 'disease taste receptor taste perception gustatory'
+    include_any: ['tas2r','t2r','taste receptor','bitter receptor','tas1r','t1r','otop1','pkd2l1','taste perception','taste dysfunction','gustatory','dysgeusia','hypogeusia','ageusia','taste sensitivity','taste threshold','taste preference']
+    exclude_any: []
+    direct_evidence: false
+    display_limit: 8
+  C1:
+    section: C
+    title: C1　精神疾病与脑屏障/脉络丛
+    source_queries:
+      pubmed: '(("Mental Disorders"[Mesh] OR "psychiatric disorder*"[Title/Abstract] OR "mental disorder*"[Title/Abstract] OR neuropsychiatric[Title/Abstract] OR depression[Title/Abstract] OR bipolar[Title/Abstract] OR schizophrenia[Title/Abstract] OR psychosis[Title/Abstract] OR anxiety[Title/Abstract] OR PTSD[Title/Abstract] OR OCD[Title/Abstract] OR ADHD[Title/Abstract] OR autism[Title/Abstract] OR "substance use"[Title/Abstract] OR "gaming disorder"[Title/Abstract] OR "eating disorder*"[Title/Abstract]) AND ("blood-brain barrier"[Title/Abstract] OR "blood brain barrier"[Title/Abstract] OR BBB[Title/Abstract] OR "BBB permeability"[Title/Abstract] OR "blood-CSF barrier"[Title/Abstract] OR "blood-cerebrospinal fluid barrier"[Title/Abstract] OR BCSFB[Title/Abstract] OR "choroid plexus"[Title/Abstract] OR "choroid plexus epithelial"[Title/Abstract] OR "brain barrier dysfunction"[Title/Abstract] OR "brain endothelial barrier"[Title/Abstract]))'
+      crossref: 'psychiatric disorder blood brain barrier choroid plexus'
+      openalex: 'psychiatric disorder blood brain barrier choroid plexus'
+    include_any: ['blood-brain barrier','blood brain barrier','bbb','blood-csf barrier','blood-cerebrospinal fluid barrier','bcsfb','choroid plexus','brain barrier','endothelial barrier']
+    require_any: ['mental disorder','psychiatric','neuropsychiatric','depress','bipolar','schizophrenia','psychosis','anxiety','ptsd','ocd','adhd','autism','substance use','gaming disorder','eating disorder']
+    exclude_any: []
+    display_limit: 8
+  C2:
+    section: C
+    title: C2　CEBPD机制研究
+    source_queries:
+      pubmed: '((CEBPD[Title/Abstract] OR "C/EBPδ"[Title/Abstract] OR "C/EBP delta"[Title/Abstract] OR "C/EBP-delta"[Title/Abstract] OR "CCAAT/enhancer-binding protein delta"[Title/Abstract] OR "CCAAT enhancer binding protein delta"[Title/Abstract]))'
+      crossref: 'CEBPD C/EBP delta'
+      openalex: 'CEBPD C/EBP delta'
+    include_any: ['cebpd','c/ebpδ','c/ebp delta','c/ebp-delta','ccaat/enhancer-binding protein delta','ccaat enhancer binding protein delta']
+    exclude_any: []
+    display_limit: 8
+  C3:
+    section: C
+    title: C3　抑郁症与神经炎症
+    source_queries:
+      pubmed: '(("Depressive Disorder"[Mesh] OR depression[Title/Abstract] OR "major depressive disorder"[Title/Abstract]) AND (neuroinflammation[Title/Abstract] OR neuroinflammatory[Title/Abstract] OR "brain inflammation"[Title/Abstract] OR "microglial activation"[Title/Abstract] OR (microglia[Title/Abstract] AND inflammation[Title/Abstract]) OR (astrocyte*[Title/Abstract] AND inflammation[Title/Abstract]) OR "CNS immune activation"[Title/Abstract] OR "neuroimmune signaling"[Title/Abstract]))'
+      crossref: 'depression neuroinflammation microglia neuroimmune'
+      openalex: 'depression neuroinflammation microglia neuroimmune'
+    include_any: ['depress']
+    require_any: ['neuroinflammation','neuroinflammatory','brain inflammation','microglial activation','microglia','astrocyte','cns immune','neuroimmune']
+    exclude_any: []
+    display_limit: 3
+  C4:
+    section: C
+    title: C4　抑郁症与脑屏障/脉络丛
+    source_queries:
+      pubmed: '(("Depressive Disorder"[Mesh] OR depression[Title/Abstract] OR "major depressive disorder"[Title/Abstract] OR "treatment-resistant depression"[Title/Abstract]) AND ("blood-brain barrier"[Title/Abstract] OR "blood brain barrier"[Title/Abstract] OR BBB[Title/Abstract] OR "blood-CSF barrier"[Title/Abstract] OR "blood-cerebrospinal fluid barrier"[Title/Abstract] OR BCSFB[Title/Abstract] OR "choroid plexus"[Title/Abstract] OR "tight junction"[Title/Abstract] OR claudin[Title/Abstract] OR occludin[Title/Abstract] OR "brain endothelial"[Title/Abstract]))'
+      crossref: 'depression blood brain barrier choroid plexus'
+      openalex: 'depression blood brain barrier choroid plexus'
+    include_any: ['depress']
+    require_any: ['blood-brain barrier','blood brain barrier','bbb','blood-csf barrier','blood-cerebrospinal fluid barrier','bcsfb','choroid plexus','tight junction','claudin','occludin','brain endothelial']
+    exclude_any: []
+    display_limit: 8
+  D1:
+    section: D
+    title: D1　意识的神经基础
+    source_queries:
+      pubmed: '((consciousness[Title/Abstract] OR "neural correlates of consciousness"[Title/Abstract] OR "neural basis of consciousness"[Title/Abstract] OR "conscious experience"[Title/Abstract] OR "subjective experience"[Title/Abstract] OR "phenomenal consciousness"[Title/Abstract] OR "conscious awareness"[Title/Abstract] OR "conscious access"[Title/Abstract] OR "conscious perception"[Title/Abstract]))'
+      crossref: 'consciousness neural correlates conscious experience subjective experience'
+      openalex: 'consciousness neural correlates conscious experience'
+    include_any: ['consciousness','conscious experience','subjective experience','conscious awareness','conscious access','conscious perception']
+    exclude_any: ['environmental awareness','health awareness','consumer awareness']
+    display_limit: 8
+  D2:
+    section: D
+    title: D2　意识理论与实证验证
+    source_queries:
+      pubmed: '(("global neuronal workspace"[Title/Abstract] OR "global workspace theory"[Title/Abstract] OR "integrated information theory"[Title/Abstract] OR "higher-order theory"[Title/Abstract] OR "higher-order thought"[Title/Abstract] OR "recurrent processing theory"[Title/Abstract] OR "predictive processing"[Title/Abstract] AND consciousness[Title/Abstract] OR "consciousness theory comparison"[Title/Abstract]))'
+      crossref: 'global neuronal workspace integrated information theory consciousness'
+      openalex: 'global neuronal workspace integrated information theory consciousness'
+    include_any: ['global neuronal workspace','global workspace theory','integrated information theory','higher-order theory','higher-order thought','recurrent processing theory','predictive processing','consciousness theory comparison']
+    exclude_any: ['environmental awareness','health awareness','consumer awareness']
+    display_limit: 8
+  D3:
+    section: D
+    title: D3　意识状态与脑机制
+    source_queries:
+      pubmed: '(("conscious brain states"[Title/Abstract] OR "wakefulness and consciousness"[Title/Abstract] OR "neural complexity and consciousness"[Title/Abstract] OR "perturbational complexity index"[Title/Abstract] OR "conscious versus unconscious processing"[Title/Abstract] OR (sleep[Title/Abstract] AND consciousness[Title/Abstract]) OR (anesthesia[Title/Abstract] AND consciousness[Title/Abstract]) OR (anaesthesia[Title/Abstract] AND consciousness[Title/Abstract])))'
+      crossref: 'consciousness neural complexity perturbational complexity sleep anesthesia'
+      openalex: 'consciousness neural complexity perturbational complexity sleep anesthesia'
+    include_any: ['conscious brain states','wakefulness and consciousness','neural complexity and consciousness','perturbational complexity index','conscious versus unconscious','sleep','anesthesia','anaesthesia']
+    require_any: ['consciousness','conscious','perturbational complexity']
+    exclude_any: ['environmental awareness','health awareness','consumer awareness']
+    display_limit: 8
