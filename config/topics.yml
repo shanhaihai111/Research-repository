@@ -5,25 +5,25 @@ project:
   recipient_placeholder: ghl0115@163.com
 topics:
   m1:
-    title: 模块一 抑郁症与游戏成瘾
+    title: A　抑郁症与游戏成瘾
     color: '#22577A'
     query: '((major depressive disorder[Title/Abstract] OR depression[Title/Abstract]) OR (gaming disorder[Title/Abstract] OR internet gaming disorder[Title/Abstract] OR problematic gaming[Title/Abstract] OR gaming addiction[Title/Abstract])) AND ("last 30 days"[PDat])'
     include: ['depress', 'gaming disorder', 'internet gaming', 'gaming addiction', 'problematic gaming']
     exclude: ['gambling disorder']
   m2:
-    title: 模块二 味觉受体 味觉感知与抑郁症
+    title: B　味觉受体、味觉感知与抑郁症
     color: '#8C5A1E'
     query: '((TAS2R[Title/Abstract] OR bitter taste receptor*[Title/Abstract] OR taste receptor*[Title/Abstract] OR gustatory[Title/Abstract] OR bitter taste[Title/Abstract]) AND (depression[Title/Abstract] OR inflammation[Title/Abstract] OR brain[Title/Abstract] OR stress[Title/Abstract])) AND ("last 30 days"[PDat])'
     include: ['tas2r', 'bitter taste', 'taste receptor', 'gustatory', 'taste perception']
     exclude: []
   m3:
-    title: 模块三 抑郁症 脑屏障 CEBPD与神经炎症
+    title: C　脑屏障、脉络丛、CEBPD与神经炎症
     color: '#7A3E65'
     query: '((depression[Title/Abstract] OR major depressive disorder[Title/Abstract]) AND (blood-brain barrier[Title/Abstract] OR choroid plexus[Title/Abstract] OR CEBPD[Title/Abstract] OR C/EBPdelta[Title/Abstract] OR neuroinflammation[Title/Abstract])) AND ("last 30 days"[PDat])'
     include: ['blood-brain barrier', 'choroid plexus', 'cebpd', 'c/ebp', 'neuroinflammation', 'claudin']
     exclude: []
   m4:
-    title: 模块四 人脑意识科学
+    title: D　人脑意识科学
     color: '#3D5A80'
     query: '((consciousness[Title/Abstract] OR conscious awareness[Title/Abstract] OR neural correlates of consciousness[Title/Abstract] OR conscious perception[Title/Abstract] OR global neuronal workspace[Title/Abstract] OR integrated information theory[Title/Abstract]) AND (human*[Title/Abstract] OR EEG[Title/Abstract] OR MEG[Title/Abstract] OR fMRI[Title/Abstract] OR anaesthesia[Title/Abstract] OR sleep[Title/Abstract])) AND ("last 30 days"[PDat])'
     include: ['consciousness', 'conscious awareness', 'conscious perception', 'global neuronal', 'integrated information']
