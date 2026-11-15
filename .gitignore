@@ -1,0 +1,8 @@
+config/email.env
+__pycache__/
+*.py[cod]
+logs/*.json
+reports/*/
+!reports/.gitkeep
+data/history.jsonl
+assets/*.ttf
