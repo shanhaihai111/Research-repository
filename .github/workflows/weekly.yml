@@ -1,0 +1,45 @@
+name: Weekly Psychiatry Frontiers
+on:
+  schedule:
+    - cron: '30 0 * * 1' # Monday 08:30 Asia/Shanghai
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Install only report dependencies
+        run: pip install reportlab pyyaml fonttools
+      - name: Build report
+        env:
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          REPORT_RECIPIENT: ${{ secrets.REPORT_RECIPIENT }}
+        run: |
+          if [ -n "$SMTP_PASSWORD" ] && [ -n "$REPORT_RECIPIENT" ]; then
+            mkdir -p config
+            umask 077
+            printf 'SMTP_HOST=%s\nSMTP_PORT=%s\nSMTP_USER=%s\nSMTP_PASSWORD=%s\nREPORT_RECIPIENT=%s\n' "$SMTP_HOST" "$SMTP_PORT" "$SMTP_USER" "$SMTP_PASSWORD" "$REPORT_RECIPIENT" > config/email.env
+            python src/run_weekly.py --send-email --confirm-send
+            rm -f config/email.env
+          else
+            python src/run_weekly.py --no-email
+          fi
+      - name: Upload report artifact
+        uses: actions/upload-artifact@v4
+        with: {name: weekly-report, path: reports/}
+      - name: Commit archive
+        run: |
+          git config user.name "weekly-report-bot"
+          git config user.email "actions@github.com"
+          git add reports data/history.jsonl logs
+          git diff --cached --quiet || git commit -m "archive weekly report"
+          git push
+      # Secrets are injected only into this job's temporary environment. They are
+      # never committed, archived, printed, or written to the reports directory.
