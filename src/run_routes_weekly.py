@@ -136,7 +136,7 @@ def route_records(code,cfg,start,end,limit,errors,sources=('pubmed','crossref','
     return formal[:cfg.get('display_limit',8)],audit,unique[:10]
 
 def main():
-    ap=argparse.ArgumentParser(); ap.add_argument('--date',default=dt.date.today().isoformat(),help='Monday after the target natural week'); ap.add_argument('--no-email',action='store_true'); ap.add_argument('--send-email',action='store_true'); ap.add_argument('--confirm-send',action='store_true'); ap.add_argument('--diagnostic-only',action='store_true'); ap.add_argument('--routes',default='',help='Comma-separated route codes for a bounded diagnostic run'); ap.add_argument('--per-route',type=int,default=250); ap.add_argument('--sources',default='pubmed,crossref,openalex'); args=ap.parse_args()
+    ap=argparse.ArgumentParser(); ap.add_argument('--date',default=dt.date.today().isoformat(),help='Monday after the target natural week'); ap.add_argument('--no-email',action='store_true'); ap.add_argument('--send-email',action='store_true'); ap.add_argument('--confirm-send',action='store_true'); ap.add_argument('--diagnostic-only',action='store_true'); ap.add_argument('--routes',default='',help='Comma-separated route codes for a bounded diagnostic run'); ap.add_argument('--per-route',type=int,default=250); ap.add_argument('--sources',default='pubmed,crossref,openalex'); ap.add_argument('--test-email',action='store_true',help='prepare an explicit test email; requires --confirm-test-email to send'); ap.add_argument('--confirm-test-email',action='store_true',help='explicit approval to submit the test email'); args=ap.parse_args()
     endday=dt.date.fromisoformat(args.date)-dt.timedelta(days=1); start=endday-dt.timedelta(days=6)
     routes=legacy.load_yaml(CONFIG/'routes.yml')['routes'];
     if args.routes:
@@ -172,9 +172,25 @@ def main():
     legacy_audit={'candidates':sum(x['merged_unique'] for x in audits),'duplicates':len(unique)-len(final),'out_of_window':sum(x['exclusions']['outside_target_week_or_delayed'] for x in audits),'api_errors':len(errors)}
     (out/f'Weekly_Research_Report_{dt.date.fromisoformat(args.date):%Y%m%d}.html').write_text(legacy.make_html(final,section_topics,start,endday,args.date,legacy_audit),encoding='utf-8')
     legacy.make_pdf(final,section_topics,start,endday,args.date,out/f'Weekly_Research_Report_{dt.date.fromisoformat(args.date):%Y%m%d}.pdf')
-    email_status='disabled'
+    email_status='PREVIEW_ONLY'
+    send_requested=(args.send_email and args.confirm_send) or (args.test_email and args.confirm_test_email)
     if not args.no_email and not args.diagnostic_only:
-        email_status=legacy.email_preview(out,dt.date.fromisoformat(args.date).strftime('%Y%m%d'),final,start,endday,args.send_email,args.confirm_send)
+        date_key=dt.date.fromisoformat(args.date).strftime('%Y%m%d')
+        prior_log=LOGS/f'route_run_{args.date}.json'
+        from email_delivery import previously_attempted
+        if send_requested and not args.test_email and previously_attempted(prior_log):
+            email_status='PREVIEW_ONLY'
+            (out/'email_delivery.json').write_text(json.dumps({
+                'status':'PREVIEW_ONLY','reason':'duplicate_send_blocked',
+                'report_date':args.date,'smtp_submission':'not_attempted',
+                'final_delivery_confirmed':False
+            },ensure_ascii=False,indent=2),encoding='utf-8')
+            print('Duplicate send blocked for an already-attempted report date.')
+        else:
+            email_status=legacy.email_preview(
+                out,date_key,final,start,endday,
+                send_requested,send_requested,test_mode=args.test_email
+            )
     if final and not args.diagnostic_only:
         with (DATA/'history.jsonl').open('a',encoding='utf-8') as f:
             for a in final:f.write(json.dumps({**a,'first_found':args.date,'report_week':args.date},ensure_ascii=False)+'\n')
