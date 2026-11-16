@@ -48,6 +48,12 @@ class Tests(unittest.TestCase):
                 result=mail.deliver_report(self.path,"20261115","a","b",2,self.env,True,True)
         self.assertNotIn(self.env["SMTP_PASSWORD"],"\n".join(captured.output)+json.dumps(result))
         self.assertEqual(result["status"],"FAILED")
+    def test_duplicate_guard_blocks_legacy_sent_log(self):
+        p=self.path/"prior.json"; p.write_text('{"email_status":"sent"}',encoding="utf-8")
+        self.assertTrue(mail.previously_attempted(p))
+    def test_duplicate_guard_allows_preview_only(self):
+        p=self.path/"prior.json"; p.write_text('{"email_status":"PREVIEW_ONLY","smtp_submission":"not_attempted"}',encoding="utf-8")
+        self.assertFalse(mail.previously_attempted(p))
     def test_bad_pdf_blocks_smtp(self):
         (self.path/"Weekly_Research_Report_20261115.pdf").write_bytes(b"not pdf")
         with patch.object(mail.smtplib,"SMTP_SSL") as smtp:
