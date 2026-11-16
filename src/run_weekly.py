@@ -225,21 +225,21 @@ def make_pdf(records, topics, start, end, report_day, outfile):
 def load_env(path):
     if not path.exists(): return {}
     return dict(line.strip().split('=',1) for line in path.read_text().splitlines() if line.strip() and not line.startswith('#') and '=' in line)
-def email_preview(report_dir, date_str, records, start, end, send, confirm):
-    env=load_env(CONFIG/'email.env'); recipient=env.get('REPORT_RECIPIENT','ghl0115@163.com')
-    msg=email.message.EmailMessage(); msg['Subject']=f'【精神医学与意识科学前沿周报】{date_str}｜抑郁症·游戏成瘾·味觉受体·脑屏障·意识'; msg['To']=recipient
-    msg.set_content(f'覆盖日期：{start} 至 {end}\n本期正式纳入：{len(records)} 篇。\n附件包括 PDF 与离线交互 HTML。\n')
-    for ext,mime in [('pdf','application/pdf'),('html','text/html')]:
-        p=report_dir/f'Weekly_Research_Report_{date_str}.{ext}'; msg.add_attachment(p.read_bytes(),maintype=mime.split('/')[0],subtype=mime.split('/')[1],filename=p.name)
-    (report_dir/'email_preview.eml').write_bytes(bytes(msg))
-    if send and confirm:
-        required=['SMTP_HOST','SMTP_PORT','SMTP_USER','SMTP_PASSWORD']
-        if not all(env.get(x) for x in required): raise RuntimeError('邮件未发送：config/email.env 缺少 SMTP 凭据。')
-        ctx=ssl.create_default_context()
-        with smtplib.SMTP_SSL(env['SMTP_HOST'],int(env['SMTP_PORT']),context=ctx) as s:
-            s.login(env['SMTP_USER'],env['SMTP_PASSWORD']); s.send_message(msg,from_addr=env['SMTP_USER'],to_addrs=[recipient])
-        return 'sent'
-    return 'preview_only'
+def email_preview(report_dir, date_str, records, start, end, send, confirm, test_mode=False):
+    from email_delivery import deliver_report
+    env=load_env(CONFIG/'email.env')
+    result=deliver_report(
+        report_dir=report_dir,
+        date_str=date_str,
+        start=str(start),
+        end=str(end),
+        count=len(records),
+        env=env,
+        send=send,
+        confirm=confirm,
+        test_mode=test_mode,
+    )
+    return result['status']
 
 def main():
     ap=argparse.ArgumentParser(); ap.add_argument('--date',default=dt.date.today().isoformat()); ap.add_argument('--sample',action='store_true'); ap.add_argument('--no-email',action='store_true'); ap.add_argument('--send-email',action='store_true'); ap.add_argument('--confirm-send',action='store_true'); args=ap.parse_args()
