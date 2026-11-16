@@ -3,8 +3,17 @@ on:
   schedule:
     - cron: '30 0 * * 1' # Monday 08:30 Asia/Shanghai
   workflow_dispatch:
+    inputs:
+      send_report:
+        description: "Explicitly approve sending this run's report by email"
+        required: true
+        type: boolean
+        default: false
 permissions:
   contents: write
+concurrency:
+  group: weekly-report-${{ github.ref }}
+  cancel-in-progress: false
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -17,20 +26,28 @@ jobs:
       - name: Verify route and report safeguards
         run: |
           python tests/test_routes.py
+          python tests/test_email_delivery.py
       - name: Build report
         env:
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
           SMTP_PORT: ${{ secrets.SMTP_PORT }}
           SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_FROM: ${{ secrets.SMTP_FROM }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           REPORT_RECIPIENT: ${{ secrets.REPORT_RECIPIENT }}
         run: |
-          if [ -n "$SMTP_PASSWORD" ] && [ -n "$REPORT_RECIPIENT" ]; then
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [ "${{ inputs.send_report }}" = "true" ]; then
+            if [ -z "$SMTP_PASSWORD" ] || [ -z "$REPORT_RECIPIENT" ] || [ -z "$SMTP_HOST" ] || [ -z "$SMTP_PORT" ] || [ -z "$SMTP_USER" ]; then
+              echo "SMTP configuration incomplete; refusing to send."
+              exit 1
+            fi
             mkdir -p config
             umask 077
-            printf 'SMTP_HOST=%s\nSMTP_PORT=%s\nSMTP_USER=%s\nSMTP_PASSWORD=%s\nREPORT_RECIPIENT=%s\n' "$SMTP_HOST" "$SMTP_PORT" "$SMTP_USER" "$SMTP_PASSWORD" "$REPORT_RECIPIENT" > config/email.env
+            trap 'rm -f config/email.env' EXIT
+            printf 'SMTP_HOST=%s\\nSMTP_PORT=%s\\nSMTP_USER=%s\\nSMTP_FROM=%s\\nSMTP_PASSWORD=%s\\nREPORT_RECIPIENT=%s\\n' "$SMTP_HOST" "$SMTP_PORT" "$SMTP_USER" "$SMTP_FROM" "$SMTP_PASSWORD" "$REPORT_RECIPIENT" > config/email.env
             python src/run_routes_weekly.py --send-email --confirm-send
             rm -f config/email.env
+            trap - EXIT
           else
             python src/run_routes_weekly.py --no-email
           fi
