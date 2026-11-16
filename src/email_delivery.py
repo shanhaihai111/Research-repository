@@ -55,6 +55,20 @@ def build_message(report_dir: Path, date_str: str, recipient: str, sender: str,
         msg.add_attachment(item["data"], maintype=item["maintype"], subtype=item["subtype"], filename=item["filename"])
     return msg, attachments
 
+def previously_attempted(log_path: Path) -> bool:
+    """Fail closed against duplicate report mail after any recorded SMTP attempt."""
+    path = Path(log_path)
+    if not path.is_file():
+        return False
+    try:
+        prior = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return False
+    status = str(prior.get("email_status", "")).upper()
+    submission = str(prior.get("smtp_submission", "")).lower()
+    # Legacy run logs used the unqualified label "sent".
+    return status in {"SMTP_ACCEPTED", "REJECTED", "FAILED", "SENT"} or submission not in {"", "not_attempted"}
+
 def deliver_report(report_dir: Path, date_str: str, start: str, end: str,
                    count: int, env: dict[str, str], send: bool, confirm: bool,
                    test_mode: bool = False) -> dict:
