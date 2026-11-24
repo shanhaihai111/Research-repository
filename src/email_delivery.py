@@ -84,6 +84,11 @@ def deliver_report(report_dir: Path, date_str: str, start: str, end: str,
     try:
         if not recipient: raise ValueError("REPORT_RECIPIENT is missing")
         if not sender: raise ValueError("SMTP_FROM and SMTP_USER are both missing")
+        if parseaddr(recipient)[1] != recipient or "@" not in recipient:
+            raise ValueError("REPORT_RECIPIENT must be a single valid email address")
+        account = env.get("SMTP_USER", "").strip()
+        if send and confirm and sender.casefold() != account.casefold():
+            raise ValueError("SMTP_FROM must match the authenticated SMTP_USER")
         msg, attachments = build_message(report_dir, date_str, recipient, sender, start, end, count, test_mode)
         result["message_id"] = msg["Message-ID"]
         result["attachments"] = [{k: item[k] for k in ("filename", "size_bytes", "sha256")} for item in attachments]
@@ -117,7 +122,9 @@ def deliver_report(report_dir: Path, date_str: str, start: str, end: str,
     except Exception as exc:
         result["status"], result["smtp_submission"] = "FAILED", "failed_or_unknown"
         result["error"] = _redact(f"{type(exc).__name__}: {exc}", secrets)
-        LOG.exception("SMTP delivery attempt failed; recipient=%s error=%s", mask_email(recipient), result["error"])
+        # SMTP exception text can contain credentials. Never emit the raw
+        # traceback or exception through the logging framework.
+        LOG.error("SMTP delivery attempt failed; recipient=%s error=%s", mask_email(recipient), result["error"])
     result["final_delivery_confirmed"] = False
     result["delivery_note"] = ("SMTP acceptance is not proof of final inbox delivery; no DSN confirmation was received."
                                if result["status"] == "SMTP_ACCEPTED" else "Final delivery status is unknown.")
