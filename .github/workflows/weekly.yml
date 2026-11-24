@@ -36,6 +36,7 @@ jobs:
           SMTP_FROM: ${{ secrets.SMTP_FROM }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           REPORT_RECIPIENT: ${{ secrets.REPORT_RECIPIENT }}
+          REPORT_EXPECTED_RECIPIENT: ${{ vars.REPORT_EXPECTED_RECIPIENT || 'ghl0115@163.com' }}
           LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
           LLM_API_BASE: ${{ vars.LLM_API_BASE }}
           LLM_MODEL: ${{ vars.LLM_MODEL }}
@@ -51,7 +52,7 @@ jobs:
             mkdir -p config
             umask 077
             trap 'rm -f config/email.env' EXIT
-            printf 'SMTP_HOST=%s\nSMTP_PORT=%s\nSMTP_USER=%s\nSMTP_FROM=%s\nSMTP_PASSWORD=%s\nREPORT_RECIPIENT=%s\n' "$SMTP_HOST" "$SMTP_PORT" "$SMTP_USER" "$SMTP_FROM" "$SMTP_PASSWORD" "$REPORT_RECIPIENT" > config/email.env
+            printf 'SMTP_HOST=%s\nSMTP_PORT=%s\nSMTP_USER=%s\nSMTP_FROM=%s\nSMTP_PASSWORD=%s\nREPORT_RECIPIENT=%s\nREPORT_EXPECTED_RECIPIENT=%s\n' "$SMTP_HOST" "$SMTP_PORT" "$SMTP_USER" "$SMTP_FROM" "$SMTP_PASSWORD" "$REPORT_RECIPIENT" "$REPORT_EXPECTED_RECIPIENT" > config/email.env
             python src/run_routes_weekly.py --send-email --confirm-send
           else
             python src/run_routes_weekly.py --no-email
