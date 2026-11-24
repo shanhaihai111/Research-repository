@@ -86,6 +86,9 @@ def deliver_report(report_dir: Path, date_str: str, start: str, end: str,
         if not sender: raise ValueError("SMTP_FROM and SMTP_USER are both missing")
         if parseaddr(recipient)[1] != recipient or "@" not in recipient:
             raise ValueError("REPORT_RECIPIENT must be a single valid email address")
+        expected = env.get("REPORT_EXPECTED_RECIPIENT", "").strip()
+        if expected and recipient.casefold() != expected.casefold():
+            raise ValueError("REPORT_RECIPIENT does not match REPORT_EXPECTED_RECIPIENT")
         account = env.get("SMTP_USER", "").strip()
         if send and confirm and sender.casefold() != account.casefold():
             raise ValueError("SMTP_FROM must match the authenticated SMTP_USER")
