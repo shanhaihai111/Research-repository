@@ -44,10 +44,20 @@ class Tests(unittest.TestCase):
     def test_password_not_logged(self):
         logger=logging.getLogger("weekly_report.email")
         with self.assertLogs(logger,level="INFO") as captured:
-            with patch.object(mail.smtplib,"SMTP_SSL",side_effect=RuntimeError("broken")):
+            with patch.object(mail.smtplib,"SMTP_SSL",side_effect=RuntimeError("broken " + self.env["SMTP_PASSWORD"])):
                 result=mail.deliver_report(self.path,"20261115","a","b",2,self.env,True,True)
         self.assertNotIn(self.env["SMTP_PASSWORD"],"\n".join(captured.output)+json.dumps(result))
         self.assertEqual(result["status"],"FAILED")
+    def test_sender_must_match_authenticated_account(self):
+        self.env["SMTP_FROM"]="other@example.org"
+        with patch.object(mail.smtplib,"SMTP_SSL") as smtp:
+            result=mail.deliver_report(self.path,"20261115","a","b",2,self.env,True,True)
+        smtp.assert_not_called(); self.assertEqual(result["status"],"FAILED")
+    def test_recipient_must_be_single_address(self):
+        self.env["REPORT_RECIPIENT"]="reader@163.com, extra@example.org"
+        with patch.object(mail.smtplib,"SMTP_SSL") as smtp:
+            result=mail.deliver_report(self.path,"20261115","a","b",2,self.env,True,True)
+        smtp.assert_not_called(); self.assertEqual(result["status"],"FAILED")
     def test_duplicate_guard_blocks_legacy_sent_log(self):
         p=self.path/"prior.json"; p.write_text('{"email_status":"sent"}',encoding="utf-8")
         self.assertTrue(mail.previously_attempted(p))
