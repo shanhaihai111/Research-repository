@@ -20,7 +20,7 @@ class Tests(unittest.TestCase):
         self.tmp=tempfile.TemporaryDirectory(); self.path=Path(self.tmp.name)
         (self.path/"Weekly_Research_Report_20261115.pdf").write_bytes(b"%PDF-1.7\nbody\n%%EOF\n")
         (self.path/"Weekly_Research_Report_20261115.html").write_text("<!doctype html><html><body>ok</body></html>",encoding="utf-8")
-        self.env={"SMTP_HOST":"smtp.example.org","SMTP_PORT":"465","SMTP_USER":"sender@example.org","SMTP_FROM":"sender@example.org","SMTP_PASSWORD":"DO_NOT_LOG_THIS","REPORT_RECIPIENT":"reader@163.com"}
+        self.env={"SMTP_HOST":"smtp.example.org","SMTP_PORT":"465","SMTP_USER":"sender@example.org","SMTP_FROM":"sender@example.org","SMTP_PASSWORD":"DO_NOT_LOG_THIS","REPORT_RECIPIENT":"reader@163.com","REPORT_EXPECTED_RECIPIENT":"reader@163.com"}
     def tearDown(self): self.tmp.cleanup()
     def test_headers_and_smtp_accepted(self):
         fake=FakeSMTP()
@@ -55,6 +55,11 @@ class Tests(unittest.TestCase):
         smtp.assert_not_called(); self.assertEqual(result["status"],"FAILED")
     def test_recipient_must_be_single_address(self):
         self.env["REPORT_RECIPIENT"]="reader@163.com, extra@example.org"
+        with patch.object(mail.smtplib,"SMTP_SSL") as smtp:
+            result=mail.deliver_report(self.path,"20261115","a","b",2,self.env,True,True)
+        smtp.assert_not_called(); self.assertEqual(result["status"],"FAILED")
+    def test_recipient_must_match_expected(self):
+        self.env["REPORT_RECIPIENT"]="wrong@163.com"
         with patch.object(mail.smtplib,"SMTP_SSL") as smtp:
             result=mail.deliver_report(self.path,"20261115","a","b",2,self.env,True,True)
         smtp.assert_not_called(); self.assertEqual(result["status"],"FAILED")
