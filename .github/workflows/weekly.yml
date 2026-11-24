@@ -27,6 +27,7 @@ jobs:
         run: |
           python tests/test_routes.py
           python tests/test_email_delivery.py
+          python tests/test_chinese_content.py
       - name: Build report
         env:
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
@@ -35,6 +36,12 @@ jobs:
           SMTP_FROM: ${{ secrets.SMTP_FROM }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           REPORT_RECIPIENT: ${{ secrets.REPORT_RECIPIENT }}
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          LLM_API_BASE: ${{ vars.LLM_API_BASE }}
+          LLM_MODEL: ${{ vars.LLM_MODEL }}
+          LLM_MAX_REPORT_USD: ${{ vars.LLM_MAX_REPORT_USD }}
+          LLM_INPUT_USD_PER_MILLION: ${{ vars.LLM_INPUT_USD_PER_MILLION }}
+          LLM_OUTPUT_USD_PER_MILLION: ${{ vars.LLM_OUTPUT_USD_PER_MILLION }}
         run: |
           if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [ "${{ inputs.send_report }}" = "true" ]; then
             if [ -z "$SMTP_PASSWORD" ] || [ -z "$REPORT_RECIPIENT" ] || [ -z "$SMTP_HOST" ] || [ -z "$SMTP_PORT" ] || [ -z "$SMTP_USER" ]; then
@@ -59,6 +66,7 @@ jobs:
           git config user.name "weekly-report-bot"
           git config user.email "actions@github.com"
           git add -f reports data/history.jsonl logs
+          if [ -d data/chinese_cache ]; then git add -f data/chinese_cache || true; fi
           git diff --cached --quiet || git commit -m "archive weekly report"
           git push
       # Secrets are injected only into this job's temporary environment. They are
