@@ -3,8 +3,17 @@ on:
   schedule:
     - cron: '30 0 * * 1' # Monday 08:30 Asia/Shanghai
   workflow_dispatch:
+    inputs:
+      send_report:
+        description: "Send this manually started report by email"
+        required: true
+        type: boolean
+        default: false
 permissions:
   contents: write
+concurrency:
+  group: weekly-report-${{ github.ref }}
+  cancel-in-progress: false
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -17,31 +26,51 @@ jobs:
       - name: Verify route and report safeguards
         run: |
           python tests/test_routes.py
+          python tests/test_email_delivery.py
+          python tests/test_chinese_content.py
       - name: Build report
         env:
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
           SMTP_PORT: ${{ secrets.SMTP_PORT }}
           SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_FROM: ${{ secrets.SMTP_FROM }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           REPORT_RECIPIENT: ${{ secrets.REPORT_RECIPIENT }}
+          REPORT_EXPECTED_RECIPIENT: ${{ vars.REPORT_EXPECTED_RECIPIENT || 'ghl0115@163.com' }}
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          LLM_API_BASE: ${{ vars.LLM_API_BASE }}
+          LLM_MODEL: ${{ vars.LLM_MODEL }}
+          LLM_MAX_REPORT_USD: ${{ vars.LLM_MAX_REPORT_USD }}
+          LLM_INPUT_USD_PER_MILLION: ${{ vars.LLM_INPUT_USD_PER_MILLION }}
+          LLM_OUTPUT_USD_PER_MILLION: ${{ vars.LLM_OUTPUT_USD_PER_MILLION }}
         run: |
-          if [ -n "$SMTP_PASSWORD" ] && [ -n "$REPORT_RECIPIENT" ]; then
+          if [ "$GITHUB_EVENT_NAME" = "schedule" ] || { [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [ "${{ inputs.send_report }}" = "true" ]; }; then
+            if [ -z "$SMTP_PASSWORD" ] || [ -z "$REPORT_RECIPIENT" ] || [ -z "$SMTP_HOST" ] || [ -z "$SMTP_PORT" ] || [ -z "$SMTP_USER" ]; then
+              echo "SMTP configuration incomplete; refusing to send."
+              exit 1
+            fi
             mkdir -p config
             umask 077
-            printf 'SMTP_HOST=%s\nSMTP_PORT=%s\nSMTP_USER=%s\nSMTP_PASSWORD=%s\nREPORT_RECIPIENT=%s\n' "$SMTP_HOST" "$SMTP_PORT" "$SMTP_USER" "$SMTP_PASSWORD" "$REPORT_RECIPIENT" > config/email.env
+            trap 'rm -f config/email.env' EXIT
+            printf 'SMTP_HOST=%s\nSMTP_PORT=%s\nSMTP_USER=%s\nSMTP_FROM=%s\nSMTP_PASSWORD=%s\nREPORT_RECIPIENT=%s\nREPORT_EXPECTED_RECIPIENT=%s\n' "$SMTP_HOST" "$SMTP_PORT" "$SMTP_USER" "$SMTP_FROM" "$SMTP_PASSWORD" "$REPORT_RECIPIENT" "$REPORT_EXPECTED_RECIPIENT" > config/email.env
             python src/run_routes_weekly.py --send-email --confirm-send
-            rm -f config/email.env
           else
             python src/run_routes_weekly.py --no-email
           fi
       - name: Upload report artifact
+        if: always()
         uses: actions/upload-artifact@v4
-        with: {name: weekly-report, path: reports/}
+        with:
+          name: weekly-report
+          path: |
+            reports/
+            logs/
       - name: Commit archive
         run: |
           git config user.name "weekly-report-bot"
           git config user.email "actions@github.com"
           git add -f reports data/history.jsonl logs
+          if [ -d data/chinese_cache ]; then git add -f data/chinese_cache || true; fi
           git diff --cached --quiet || git commit -m "archive weekly report"
           git push
       # Secrets are injected only into this job's temporary environment. They are

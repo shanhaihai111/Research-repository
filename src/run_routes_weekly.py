@@ -6,6 +6,8 @@ the selected window.  Database indexing dates are used only for discovery.
 """
 from __future__ import annotations
 import argparse, csv, datetime as dt, html, json, re, time, urllib.parse, urllib.request
+import threading
+from zoneinfo import ZoneInfo
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from collections import defaultdict
 from pathlib import Path
@@ -15,15 +17,30 @@ import run_weekly as legacy
 
 ROOT=Path(__file__).resolve().parents[1]
 DATA, REPORTS, LOGS, CONFIG=(ROOT/x for x in ('data','reports','logs','config'))
+_ncbi_lock=threading.Lock()
+_ncbi_next=0.0
 
-def get_json(url, errors, source, route, tries=2):
+def _open(req, timeout):
+    global _ncbi_next
+    if 'eutils.ncbi.nlm.nih.gov' in req.full_url:
+        with _ncbi_lock:
+            wait=max(0.0,_ncbi_next-time.monotonic())
+            if wait: time.sleep(wait)
+            _ncbi_next=time.monotonic()+0.45
+    return urllib.request.urlopen(req,timeout=timeout)
+
+def get_json(url, errors, source, route, tries=3):
     last=''
     for attempt in range(tries):
         try:
             req=urllib.request.Request(url,headers={'User-Agent':'PsychiatryFrontiersWeekly/2.0 (literature-monitor; mailto:research@example.invalid)'})
-            with urllib.request.urlopen(req,timeout=12) as r: return json.load(r)
+            with _open(req,timeout=20) as r: return json.load(r)
         except Exception as exc:
-            last=f'{type(exc).__name__}: {exc}'; time.sleep(1+attempt)
+            last=f'{type(exc).__name__}: {exc}'
+            if attempt+1<tries:
+                retry_after=getattr(exc,'headers',{}).get('Retry-After','') if hasattr(exc,'headers') else ''
+                delay=min(60,int(retry_after)) if str(retry_after).isdigit() else min(16,2**attempt)
+                time.sleep(delay)
     errors.append({'route':route,'source':source,'error':last})
     return None
 
@@ -61,7 +78,7 @@ def pubmed(route, query, start, end, limit, errors):
     absmap={}
     try:
         ef='https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?'+urllib.parse.urlencode({'db':'pubmed','id':','.join(ids),'retmode':'xml'})
-        xml=urllib.request.urlopen(urllib.request.Request(ef,headers={'User-Agent':'PsychiatryFrontiersWeekly/2.0'}),timeout=12).read()
+        xml=_open(urllib.request.Request(ef,headers={'User-Agent':'PsychiatryFrontiersWeekly/2.0'}),timeout=20).read()
         for art in ET.fromstring(xml).findall('.//PubmedArticle'):
             p=art.findtext('.//PMID') or ''; absmap[p]=' '.join(''.join(n.itertext()).strip() for n in art.findall('.//Abstract/AbstractText')).strip()
     except Exception as exc: errors.append({'route':route,'source':'PubMed EFetch','error':str(exc)})
@@ -84,7 +101,7 @@ def crossref(route, query, start, end, limit, errors):
     return rows,{'query':query,'returned':len(items),'retrieved':len(rows)}
 
 def openalex(route, query, start, end, limit, errors):
-    params={'search':query,'filter':f'from_publication_date:{(end-dt.timedelta(days=89)).isoformat()},to_publication_date:{end.isoformat()},type:article','per-page':limit}
+    params={'search':query,'filter':f'from_publication_date:{(end-dt.timedelta(days=89)).isoformat()},to_publication_date:{end.isoformat()},type:article','per-page':min(limit,200)}
     raw=get_json('https://api.openalex.org/works?'+urllib.parse.urlencode(params),errors,'OpenAlex',route)
     if not raw:return [],{'returned':0,'error':True}
     rows=[]
@@ -136,8 +153,11 @@ def route_records(code,cfg,start,end,limit,errors,sources=('pubmed','crossref','
     return formal[:cfg.get('display_limit',8)],audit,unique[:10]
 
 def main():
-    ap=argparse.ArgumentParser(); ap.add_argument('--date',default=dt.date.today().isoformat(),help='Monday after the target natural week'); ap.add_argument('--no-email',action='store_true'); ap.add_argument('--send-email',action='store_true'); ap.add_argument('--confirm-send',action='store_true'); ap.add_argument('--diagnostic-only',action='store_true'); ap.add_argument('--routes',default='',help='Comma-separated route codes for a bounded diagnostic run'); ap.add_argument('--per-route',type=int,default=250); ap.add_argument('--sources',default='pubmed,crossref,openalex'); args=ap.parse_args()
-    endday=dt.date.fromisoformat(args.date)-dt.timedelta(days=1); start=endday-dt.timedelta(days=6)
+    ap=argparse.ArgumentParser(); ap.add_argument('--date',default=dt.datetime.now(ZoneInfo('Asia/Shanghai')).date().isoformat(),help='Run date; always reports the previous complete Monday-Sunday week'); ap.add_argument('--no-email',action='store_true'); ap.add_argument('--send-email',action='store_true'); ap.add_argument('--confirm-send',action='store_true'); ap.add_argument('--diagnostic-only',action='store_true'); ap.add_argument('--routes',default='',help='Comma-separated route codes for a bounded diagnostic run'); ap.add_argument('--per-route',type=int,default=250); ap.add_argument('--sources',default='pubmed,crossref,openalex'); ap.add_argument('--test-email',action='store_true'); ap.add_argument('--confirm-test-email',action='store_true'); args=ap.parse_args()
+    if not args.diagnostic_only:
+        from chinese_content import config_from_env
+        config_from_env()  # A missing model configuration stops the run before any search or email.
+    start,endday=legacy.monday_window(dt.date.fromisoformat(args.date))
     routes=legacy.load_yaml(CONFIG/'routes.yml')['routes'];
     if args.routes:
         wanted={x.strip() for x in args.routes.split(',') if x.strip()}; routes={k:v for k,v in routes.items() if k in wanted}
@@ -157,8 +177,17 @@ def main():
     # Route membership must survive cross-source consolidation.
     for a in final:
         a['route_titles']=[routes[r]['title'] for r in a.get('routes',[])]; legacy.metrics_lookup([a])
+    if not args.diagnostic_only:
+        from chinese_content import enrich, ContentError
+        if errors:
+            LOGS.mkdir(parents=True,exist_ok=True)
+            (LOGS/f'search_failure_{args.date}.json').write_text(json.dumps({'run_date':args.date,'routes':audits,'api_errors':errors},ensure_ascii=False,indent=2),encoding='utf-8')
+            raise ContentError('有检索来源失败；停止生成和投递，详见 search_failure 日志。')
+        _,content_audit=enrich(final,DATA/'chinese_cache')
+    else:
+        content_audit={'mode':'diagnostic_only'}
     out=REPORTS/args.date; out.mkdir(parents=True,exist_ok=True); LOGS.mkdir(exist_ok=True)
-    audit={'run_date':args.date,'coverage_start':start.isoformat(),'coverage_end':endday.isoformat(),'routes':audits,'cross_route_unique':len(unique),'history_duplicates':len(unique)-len(final),'final_unique':len(final),'api_errors':errors,'test_scope':'不发送邮件；该次为本地诊断/预览运行。'}
+    audit={'run_date':args.date,'coverage_start':start.isoformat(),'coverage_end':endday.isoformat(),'routes':audits,'cross_route_unique':len(unique),'history_duplicates':len(unique)-len(final),'final_unique':len(final),'api_errors':errors,'chinese_content':content_audit}
     (out/'search_audit.json').write_text(json.dumps(audit,ensure_ascii=False,indent=2),encoding='utf-8')
     (out/'candidate_examples.json').write_text(json.dumps(samples,ensure_ascii=False,indent=2),encoding='utf-8')
     with (out/'included_records.csv').open('w',newline='',encoding='utf-8-sig') as f:
@@ -172,12 +201,30 @@ def main():
     legacy_audit={'candidates':sum(x['merged_unique'] for x in audits),'duplicates':len(unique)-len(final),'out_of_window':sum(x['exclusions']['outside_target_week_or_delayed'] for x in audits),'api_errors':len(errors)}
     (out/f'Weekly_Research_Report_{dt.date.fromisoformat(args.date):%Y%m%d}.html').write_text(legacy.make_html(final,section_topics,start,endday,args.date,legacy_audit),encoding='utf-8')
     legacy.make_pdf(final,section_topics,start,endday,args.date,out/f'Weekly_Research_Report_{dt.date.fromisoformat(args.date):%Y%m%d}.pdf')
-    email_status='disabled'
+    email_status='PREVIEW_ONLY'
+    send_requested=(args.send_email and args.confirm_send) or (args.test_email and args.confirm_test_email)
     if not args.no_email and not args.diagnostic_only:
-        email_status=legacy.email_preview(out,dt.date.fromisoformat(args.date).strftime('%Y%m%d'),final,start,endday,args.send_email,args.confirm_send)
-    if final and not args.diagnostic_only:
+        date_key=dt.date.fromisoformat(args.date).strftime('%Y%m%d')
+        prior_log=LOGS/f'route_run_{args.date}.json'
+        from email_delivery import previously_attempted
+        if send_requested and not args.test_email and previously_attempted(prior_log):
+            email_status='PREVIEW_ONLY'
+            (out/'email_delivery.json').write_text(json.dumps({
+                'status':'PREVIEW_ONLY','reason':'duplicate_send_blocked',
+                'report_date':args.date,'smtp_submission':'not_attempted',
+                'final_delivery_confirmed':False
+            },ensure_ascii=False,indent=2),encoding='utf-8')
+            print('Duplicate send blocked for an already-attempted report date.')
+        else:
+            email_status=legacy.email_preview(
+                out,date_key,final,start,endday,
+                send_requested,send_requested,test_mode=args.test_email
+            )
+    if final and not args.diagnostic_only and email_status not in ('FAILED','REJECTED'):
         with (DATA/'history.jsonl').open('a',encoding='utf-8') as f:
             for a in final:f.write(json.dumps({**a,'first_found':args.date,'report_week':args.date},ensure_ascii=False)+'\n')
     (LOGS/f'route_run_{args.date}.json').write_text(json.dumps({**audit,'email_status':email_status},ensure_ascii=False,indent=2),encoding='utf-8')
     print(json.dumps({'coverage':[start.isoformat(),endday.isoformat()],'routes':len(routes),'final_unique':len(final),'api_errors':len(errors),'email':email_status,'audit':str(out/'search_audit.json')},ensure_ascii=False))
+    if email_status in ('FAILED','REJECTED'):
+        raise RuntimeError('邮件提交失败；具体状态已写入 email_delivery.json')
 if __name__=='__main__':main()

@@ -109,34 +109,29 @@ def metrics_lookup(records):
         a['cas_2025_major']=m.get('cas_2025_major','未核验') if m else '未核验'
         a['cas_2025_minor']=m.get('cas_2025_minor','未核验') if m else '未核验'
         a['impact_factor']=m.get('impact_factor','未核验') if m else '未核验'
+        a['jcr_year']=m.get('jcr_year','未核验') if m else '未核验'
         a['metrics_source']=m.get('source','未导入授权指标表') if m else '未导入授权指标表'
     return records
 
 def brief(a):
     if a.get('summary_cn'): return a['summary_cn']
-    ab=' '.join((a.get('abstract') or '').split())
-    if not ab: return '仅完成元数据核验；未取得摘要，不对研究结果作解释。'
-    # conservative, traceable abstract compression
-    sentences=re.split(r'(?<=[.!?])\s+',ab)
-    return ' '.join(sentences[:2])[:420]
+    raise ValueError('中文研究提炼缺失；拒绝生成正式报告')
 
 def translation(a):
-    return a.get('title_cn','题名中文译文待人工核校。')
+    if a.get('title_cn'): return a['title_cn']
+    raise ValueError('中文题名缺失；拒绝生成正式报告')
 
 def detailed_cn(a):
     if a.get('detail_cn'): return a['detail_cn']
-    if not a.get('abstract'):
-        return '尚未获得摘要；本期不对研究结果作延伸解释。'
-    return '本解读仅依据 PubMed 摘要：'+brief(a)
+    raise ValueError('中文详细解读缺失；拒绝生成正式报告')
 
 def weekly_takeaway(records):
     """Concise Chinese synthesis. Specific editorial text is supplied with verified seed records;
     live papers fall back to their validated Chinese summaries without inventing results."""
     supplied=[a.get('weekly_takeaway_cn','') for a in records if a.get('weekly_takeaway_cn')]
-    if supplied: return supplied[0][:250]
+    if supplied and len(supplied[0]) <= 250: return supplied[0]
     if not records: return '本期未纳入符合条件的新论文。'
-    summaries='；'.join(brief(a) for a in records[:3])
-    return f'本期纳入 {len(records)} 项研究。{summaries}'[:250]
+    raise ValueError('中文本期要点缺失或超出250字；拒绝生成正式报告')
 
 def related_note(a):
     b=(a.get('title','')+' '+a.get('abstract','')).lower()
@@ -145,6 +140,12 @@ def related_note(a):
     if 'cebpd' in b or 'c/ebp' in b: return '涉及 CEBPD 轴；建议优先核对细胞类型、上游刺激和因果干预。'
     if 'depression' in b: return '对抑郁症研究具有直接或临床关联价值；须按研究设计判断因果强度。'
     return '与既有重点方向无直接机制连接；不强行外推。'
+
+def journal_line(a):
+    return (f'{a.get("journal", "")} ｜中科院大类（2025版）：{a.get("cas_2025_major") or "未核验"}'
+            f' ｜中科院小类（2025版）：{a.get("cas_2025_minor") or "未核验"}'
+            f' ｜IF（JCR {a.get("jcr_year") or "未核验"}）：{a.get("impact_factor") or "未核验"}'
+            f' ｜首次发表：{a.get("online_date") or "待核验"}')
 
 def make_html(records, topics, start, end, report_day, audit):
     css='''*{box-sizing:border-box}body{margin:0;background:#f6f7f8;color:#1c2b36;font-family:"Noto Sans CJK SC","Microsoft YaHei",Arial,sans-serif;line-height:1.68}.wrap{max-width:1120px;margin:auto;padding:42px 24px 72px}header{border-bottom:1px solid #d9e0e5;padding-bottom:25px}h1{font-family:"Times New Roman","Noto Serif CJK SC",serif;font-size:32px;line-height:1.25;margin:0 0 6px;color:#13283b}.sub{font-family:"Times New Roman",serif;color:#607180;font-size:15px}.meta{margin-top:18px;color:#526577;font-size:14px}.nav{position:sticky;top:0;background:#f6f7f8ee;backdrop-filter:blur(8px);padding:12px 0;z-index:2;border-bottom:1px solid #dce3ea}.nav button{border:1px solid #c9d5df;background:#fff;border-radius:16px;padding:5px 11px;margin:3px;color:#31475b;cursor:pointer}.tools{display:flex;gap:10px;flex-wrap:wrap;margin:24px 0}.tools input,.tools select{padding:9px 10px;border:1px solid #cad5df;border-radius:6px;background:#fff}.section{margin-top:44px}.section h2{font-size:23px;margin-bottom:8px}.empty{color:#637586;font-style:italic}.card{background:var(--bg);border:1px solid #dbe3e9;border-left:5px solid var(--c);border-radius:8px;margin:16px 0;padding:18px 20px;box-shadow:0 1px 1px #0b20300a}.card h3{font-family:"Times New Roman",serif;font-size:18px;line-height:1.35;margin:0 0 4px}.translation{font-family:"Noto Serif CJK SC","Songti SC",serif;font-size:13px;color:#647482;margin:0 0 10px}.badge{font-size:12px;border-radius:12px;background:#eef2f4;padding:3px 8px;margin-right:5px}.detail{display:none;border-top:1px solid #dce5e9;margin-top:14px;padding-top:14px}.card.open .detail{display:block}.card button{border:0;background:transparent;color:#1a5e86;padding:0;font-weight:600;cursor:pointer}.small{font-size:13px;color:#607180}.summary{background:#eef3f5;border:1px solid #d5e0e5;border-radius:8px;padding:16px 20px;margin:24px 0}.link{color:#125d8b;text-decoration:none}@media(max-width:620px){.wrap{padding:26px 15px}.tools{display:block}.tools>*{width:100%;margin:4px 0}h1{font-size:26px}}'''
@@ -162,7 +163,7 @@ def make_html(records, topics, start, end, report_day, audit):
             importance=3 if ('随机' in a['type'] or 'Randomized' in a['type']) else 2
             bg=('#f9fbfb','#f6f9fc','#faf8f5')[i%3]
             route_line=(f' · 检索路线：{html.escape(a.get("route_label",""))}' if a.get('route_label') else '')
-            rows.append(f'''<article class="card" data-module="{key}" data-type="{html.escape(a['type']).lower()}" data-date="{html.escape(a['online_date'] or '0000-00-00')}" data-importance="{importance}" style="--c:{t['color']};--bg:{bg}"><h3>{html.escape(a['title'])}</h3><p class="translation">{html.escape(translation(a))}</p><div class="small">{html.escape(a['journal'])} · 首次在线：{html.escape(a['online_date'] or '待核验')}{route_line} · {' · '.join(links)}</div><p>{html.escape(brief(a))}</p><button onclick="this.closest('.card').classList.toggle('open')">展开详细解读</button><div class="detail"><p><b>研究设计、主要发现与局限：</b>{html.escape(detailed_cn(a))}</p><p><b>科研价值：</b>{html.escape(related_note(a))}</p><p class="small">研究类型：{html.escape(a['type'])} ｜ PMID {html.escape(a.get('pmid','无'))} ｜ DOI {html.escape(a.get('doi','无'))} ｜核验日 {report_day}</p></div></article>''')
+            rows.append(f'''<article class="card" data-module="{key}" data-type="{html.escape(a['type']).lower()}" data-date="{html.escape(a['online_date'] or '0000-00-00')}" data-importance="{importance}" style="--c:{t['color']};--bg:{bg}"><h3>{html.escape(a['title'])}</h3><p class="translation">{html.escape(translation(a))}</p><div class="small">{html.escape(journal_line(a))}{route_line} · {' · '.join(links)}</div><p>{html.escape(brief(a))}</p><button onclick="this.closest('.card').classList.toggle('open')">展开详细解读</button><div class="detail"><p><b>研究设计、主要发现与局限：</b>{html.escape(detailed_cn(a))}</p><p><b>科研价值：</b>{html.escape(related_note(a))}</p><p class="small">研究类型：{html.escape(a['type'])} ｜ PMID {html.escape(a.get('pmid','无'))} ｜ DOI {html.escape(a.get('doi','无'))} ｜核验日 {report_day}</p></div></article>''')
         body=''.join(rows) or '<p class="empty">本周未检索到符合纳入条件的新论文。</p>'
         cards.append(f'<section class="section" id="{key}"><h2 style="color:{t["color"]}">{html.escape(t["title"])}</h2>{body}</section>')
     counts=' · '.join(f'{topics[k]["title"].split(" ",1)[-1]} {len(by[k])} 篇' for k in topics)
@@ -214,7 +215,7 @@ def make_pdf(records, topics, start, end, report_day, outfile):
         rs=[a for a in records if key in a['modules']]
         if not rs: story.append(Paragraph('本周未检索到符合纳入条件的新论文。',body)); continue
         for i,a in enumerate(rs):
-            content=[Paragraph(a['title'],etitle),Paragraph(translation(a),trans),Paragraph(f'{a["journal"]} ｜首次在线：{a["online_date"]} ｜{a["type"]}',small),Paragraph('<b>研究提炼：</b>'+html.escape(brief(a)),body),Paragraph('<b>详细解读：</b>'+html.escape(detailed_cn(a)),body),Paragraph('<b>科研价值：</b>'+html.escape(related_note(a)),body)]
+            content=[Paragraph(html.escape(a['title']),etitle),Paragraph(html.escape(translation(a)),trans),Paragraph(html.escape(journal_line(a)+' ｜'+a['type']),small),Paragraph('<b>研究提炼：</b>'+html.escape(brief(a)),body),Paragraph('<b>详细解读：</b>'+html.escape(detailed_cn(a)),body),Paragraph('<b>科研价值：</b>'+html.escape(related_note(a)),body)]
             if a.get('doi'): content.append(Paragraph(f'<link href="https://doi.org/{a["doi"]}">DOI: {a["doi"]}</link>',small))
             if a.get('pmid'): content.append(Paragraph(f'<link href="https://pubmed.ncbi.nlm.nih.gov/{a["pmid"]}/">PubMed: {a["pmid"]}</link>',small))
             shade=[colors.HexColor('#f5f9fa'),colors.HexColor('#f7f8fc'),colors.HexColor('#faf8f5')][i%3]
@@ -225,21 +226,21 @@ def make_pdf(records, topics, start, end, report_day, outfile):
 def load_env(path):
     if not path.exists(): return {}
     return dict(line.strip().split('=',1) for line in path.read_text().splitlines() if line.strip() and not line.startswith('#') and '=' in line)
-def email_preview(report_dir, date_str, records, start, end, send, confirm):
-    env=load_env(CONFIG/'email.env'); recipient=env.get('REPORT_RECIPIENT','ghl0115@163.com')
-    msg=email.message.EmailMessage(); msg['Subject']=f'【精神医学与意识科学前沿周报】{date_str}｜抑郁症·游戏成瘾·味觉受体·脑屏障·意识'; msg['To']=recipient
-    msg.set_content(f'覆盖日期：{start} 至 {end}\n本期正式纳入：{len(records)} 篇。\n附件包括 PDF 与离线交互 HTML。\n')
-    for ext,mime in [('pdf','application/pdf'),('html','text/html')]:
-        p=report_dir/f'Weekly_Research_Report_{date_str}.{ext}'; msg.add_attachment(p.read_bytes(),maintype=mime.split('/')[0],subtype=mime.split('/')[1],filename=p.name)
-    (report_dir/'email_preview.eml').write_bytes(bytes(msg))
-    if send and confirm:
-        required=['SMTP_HOST','SMTP_PORT','SMTP_USER','SMTP_PASSWORD']
-        if not all(env.get(x) for x in required): raise RuntimeError('邮件未发送：config/email.env 缺少 SMTP 凭据。')
-        ctx=ssl.create_default_context()
-        with smtplib.SMTP_SSL(env['SMTP_HOST'],int(env['SMTP_PORT']),context=ctx) as s:
-            s.login(env['SMTP_USER'],env['SMTP_PASSWORD']); s.send_message(msg,from_addr=env['SMTP_USER'],to_addrs=[recipient])
-        return 'sent'
-    return 'preview_only'
+def email_preview(report_dir, date_str, records, start, end, send, confirm, test_mode=False):
+    from email_delivery import deliver_report
+    env=load_env(CONFIG/'email.env')
+    result=deliver_report(
+        report_dir=report_dir,
+        date_str=date_str,
+        start=str(start),
+        end=str(end),
+        count=len(records),
+        env=env,
+        send=send,
+        confirm=confirm,
+        test_mode=test_mode,
+    )
+    return result['status']
 
 def main():
     ap=argparse.ArgumentParser(); ap.add_argument('--date',default=dt.date.today().isoformat()); ap.add_argument('--sample',action='store_true'); ap.add_argument('--no-email',action='store_true'); ap.add_argument('--send-email',action='store_true'); ap.add_argument('--confirm-send',action='store_true'); args=ap.parse_args()
